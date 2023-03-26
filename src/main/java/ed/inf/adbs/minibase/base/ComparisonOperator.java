@@ -24,6 +24,8 @@ public enum ComparisonOperator {
     NEQ("!="){
         @Override
         public boolean evaluate(Term left, Term right) {
+            System.out.println("left: " + left);
+            System.out.println("right: " + right);
             return !left.equals(right);
         }
     },

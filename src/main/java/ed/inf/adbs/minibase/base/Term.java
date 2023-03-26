@@ -11,11 +11,17 @@ public class Term {
 
 //    Create a function to check if two constants are equal:
     public boolean equals(Term right) {
-        System.out.println("From Term: " + this.toString());
+
+        System.out.println("Comparing from Term: " + this.toString() + " and " + right.toString());
         if (this.toString().equals(right.toString())) {
+            System.out.println("They are equal");
             return true;
         }
-        return false;
+        else{
+            System.out.println("They are not equal");
+            return false;
+        }
+
     }
 
 //    public Term evaluate(Tuple tuple) {

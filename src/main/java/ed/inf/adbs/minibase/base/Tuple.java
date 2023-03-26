@@ -46,6 +46,7 @@ public class Tuple {
         return tuple[i];
     }
 
+
     public String toString() {
         String result = "";
         for (int i = 0; i < tuple.length; i++) {

@@ -42,15 +42,84 @@ public class Minibase {
 
 
 
+    public static List<String> getRelationsFromQuery(Query query) {
+        List<String> relations = new ArrayList<>();
+        for (Atom atom : query.getBody()) {
+            if (atom instanceof RelationalAtom) {
+                RelationalAtom relationalAtom = (RelationalAtom) atom;
+                relations.add(relationalAtom.getName());
+            }
+        }
+        return relations;
+    }
+
+    public static List<RelationalAtom> getRelationalAtomsFromQuery(Query query) {
+        List<RelationalAtom> relationalAtoms = new ArrayList<>();
+        for (Atom atom : query.getBody()) {
+            if (atom instanceof RelationalAtom) {
+                RelationalAtom relationalAtom = (RelationalAtom) atom;
+                relationalAtoms.add(relationalAtom);
+            }
+        }
+        return relationalAtoms;
+    }
+
+
+
+
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) throws IOException {
         // TODO: add your implementation
 
         try {
             Query query = QueryParser.parse(Paths.get(inputFile));
 
+//            Print query:
+            System.out.println("Query parsed: " + query);
 
-            //        Create SelectionOperator object, given the scanOperator and the selection condition
-            SelectOperator selectionOperator = new SelectOperator(query);
+            //        Create ScanOperator object, given the query
+            ScanOperator scanOperator = new ScanOperator("R");
+            System.out.println(scanOperator.getRelationName());
+            System.out.println(scanOperator.getRelationPath());
+            System.out.println(scanOperator.getReader());
+
+            //        Try to use the get next tuple function:
+            Tuple tupleHere = scanOperator.getNextTuple();
+
+//            Get list of relational atoms from query
+            List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
+
+//            Iterate over each relational atom and get the relation name
+            for (RelationalAtom relationalAtom : relationalAtoms) {
+                String relationName = relationalAtom.getName();
+                System.out.println("Current relation name: " + relationName);
+
+                //        Create SelectionOperator object, given the query and the relation name
+                SelectOperator selectionOperator = new SelectOperator(query, relationName);
+
+                System.out.println("Selection operator: " + selectionOperator);
+
+//                selectionOperator.getNextTuple();
+
+////                Iterate 8 times:
+                for (int i = 0; i < 8; i++) {
+                    Tuple tuple = selectionOperator.getNextTuple();
+                    System.out.println("TupleResult: " + tuple);
+                }
+
+
+
+
+            }
+
+
+        }
+
+         catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
 
 
 
@@ -78,9 +147,7 @@ public class Minibase {
 //            scanOperator.dump();
 
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
 
 
 

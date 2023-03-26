@@ -107,7 +107,7 @@ public class Catalog {
 
     public static Catalog getInstance() {
         if (instance == null) {
-            instance = new Catalog("data/evaluation/db/");
+            instance = new Catalog("data/evaluation/db");
         }
         return instance;
     }

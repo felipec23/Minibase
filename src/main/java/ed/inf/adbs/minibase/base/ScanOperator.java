@@ -23,11 +23,14 @@ public class ScanOperator extends Operator{
 
     private Query query;
 
-    public ScanOperator(Query query) {
+    private List<String> schema;
+
+    public ScanOperator(String relationName) {
         super(null);
-        this.query = query;
+//        this.query = query;
         this.catalog = Catalog.getInstance();
-        this.relationName = extractRelationName();
+        this.relationName = relationName;
+        this.schema = getSchemaOfRelation();
         this.relationPath = getRelationPath();
         this.reader = (BufferedReader) setReader();
 
@@ -38,7 +41,7 @@ public class ScanOperator extends Operator{
         return "SCAN(" + relationName + ")";
     }
 
-//    Function to set reader:
+    //    Function to set reader:
     public Reader setReader() {
         try {
             Reader reader = new BufferedReader(new FileReader(relationPath));
@@ -49,7 +52,7 @@ public class ScanOperator extends Operator{
         }
     }
 
-//    Function to get relation name:
+    //    Function to get relation name:
     public String getRelationName() {
         return relationName;
     }
@@ -137,7 +140,7 @@ public class ScanOperator extends Operator{
 
 
 
-//    Function to get the file path of the relation
+    //    Function to get the file path of the relation
     public String getRelationPath() {
 
 //        Get from the catalog the file path of the relation
@@ -151,6 +154,20 @@ public class ScanOperator extends Operator{
         return reader.toString();
     }
 
+
+    public List<String> getSchemaOfRelation() {
+        //            Use the schema to get the data types of the attributes
+
+        Relation relation = catalog.getRelation(relationName);
+        List<String> schema = relation.getSchema();
+
+//            Print schema, say that print it
+        System.out.println("Schema: " + schema);
+
+        return schema;
+
+    }
+
     @Override
     public Tuple getNextTuple() {
         String line;
@@ -161,20 +178,10 @@ public class ScanOperator extends Operator{
                 return null;
             }
 
-            //            Use the schema to get the data types of the attributes
 
-            Relation relation = catalog.getRelation(relationName);
-            List<String> schema = relation.getSchema();
-
-//            Print schema, say that print it
-            System.out.println("Schema: " + schema);
             String[] values = line.split(",");
             Term[] terms = new Term[values.length];
 
-//            Trim the values
-            for (int i = 0; i < values.length; i++) {
-                values[i] = values[i].trim();
-            }
 
 //            Print the values
             System.out.println("Values from CSV: ");
@@ -185,12 +192,12 @@ public class ScanOperator extends Operator{
 //            Parse the values to the correct data type
             for (int i = 0; i < values.length; i++) {
 
-//                Print i, say that print it
-                System.out.println("i: " + i);
-//                Print the data type
-                System.out.println("Data type: " + schema.get(i));
-//                Print terms[i]
-                System.out.println("values[i]: " + values[i]);
+////                Print i, say that print it
+//                System.out.println("i: " + i);
+////                Print the data type
+//                System.out.println("Data type: " + schema.get(i));
+////                Print terms[i]
+//                System.out.println("values[i]: " + values[i]);
 //                Get correspondant data type
                 String type = schema.get(i);
 
@@ -199,15 +206,15 @@ public class ScanOperator extends Operator{
 
 //                    If it's an integer, create new IntegerConstant object
 //                    values[i] = new IntegerConstant(Integer.parseInt(values[i]));
-                    terms[i] = new IntegerConstant(Integer.parseInt(values[i]));
+                    terms[i] = new IntegerConstant(Integer.parseInt(values[i].trim()));
                 }
                 else if (type.equals("string")) {
 
-                    System.out.println("String: " + values[i]);
+
 //                    values[i] = values[i];
 //                    Remove the single quotes
-                    values[i] = values[i].replaceAll("'", "");
-                    terms[i] = new StringConstant(values[i]);
+//                    values[i] = values[i].trim().replaceAll("'", "");
+                    terms[i] = new StringConstant(values[i].trim().replaceAll("'", ""));
                 }
             }
 
@@ -241,7 +248,7 @@ public class ScanOperator extends Operator{
         }
     }
 
-//    Dump the scan operator
+    //    Dump the scan operator
     @Override
     public void dump() {
         reset();
