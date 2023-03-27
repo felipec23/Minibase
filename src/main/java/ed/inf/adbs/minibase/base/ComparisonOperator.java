@@ -9,14 +9,14 @@ public enum ComparisonOperator {
 
         @Override
         public boolean evaluate(Term left, Term right) {
-            System.out.println("left: " + left);
-            System.out.println("right: " + right);
-//            Print operator:
-            System.out.println("op: " + "=");
+//            System.out.println("left: " + left);
+//            System.out.println("right: " + right);
+////            Print operator:
+//            System.out.println("op: " + "=");
 
-//            Print type of each and say it:
-            System.out.println("left type: " + left.getClass());
-            System.out.println("right type: " + right.getClass());
+////            Print type of each and say it:
+//            System.out.println("left type: " + left.getClass());
+//            System.out.println("right type: " + right.getClass());
 
             return left.equals(right);
         }
@@ -24,8 +24,8 @@ public enum ComparisonOperator {
     NEQ("!="){
         @Override
         public boolean evaluate(Term left, Term right) {
-            System.out.println("left: " + left);
-            System.out.println("right: " + right);
+//            System.out.println("left: " + left);
+//            System.out.println("right: " + right);
             return !left.equals(right);
         }
     },

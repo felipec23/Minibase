@@ -8,11 +8,33 @@ public class ComparisonAtom extends Atom {
 
     private ComparisonOperator op;
 
+    private String type;
+
+    private Integer index;
+
+    private String relationName;
+
     public ComparisonAtom(Term term1, Term term2, ComparisonOperator op) {
         this.term1 = term1;
         this.term2 = term2;
         this.op = op;
+        this.type = "default";
+        this.index = -1;
+        this.relationName = "default";
     }
+
+    public void setRelationName(String relationName) {
+    	this.relationName = relationName;
+    }
+
+    public void setIndex(Integer index) {
+    	this.index = index;
+    }
+
+    public void setType(String type) {
+    	this.type = type;
+    }
+
 
     public Term getTerm1() {
         return term1;

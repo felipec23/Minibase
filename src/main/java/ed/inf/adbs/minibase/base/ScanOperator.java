@@ -3,10 +3,7 @@ package ed.inf.adbs.minibase.base;
 import ed.inf.adbs.minibase.parser.QueryParser;
 
 import javax.xml.validation.Schema;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +50,8 @@ public class ScanOperator extends Operator{
     }
 
     //    Function to get relation name:
+
+    @Override
     public String getRelationName() {
         return relationName;
     }
@@ -150,11 +149,13 @@ public class ScanOperator extends Operator{
 
     }
 
+
+
     public String getReader() {
         return reader.toString();
     }
 
-
+    @Override
     public List<String> getSchemaOfRelation() {
         //            Use the schema to get the data types of the attributes
 
@@ -184,10 +185,10 @@ public class ScanOperator extends Operator{
 
 
 //            Print the values
-            System.out.println("Values from CSV: ");
-            for (int i = 0; i < values.length; i++) {
-                System.out.println(values[i]);
-            }
+//            System.out.println("Values from CSV: ");
+//            for (int i = 0; i < values.length; i++) {
+//                System.out.println(values[i]);
+//            }
 
 //            Parse the values to the correct data type
             for (int i = 0; i < values.length; i++) {
@@ -219,16 +220,16 @@ public class ScanOperator extends Operator{
             }
 
 //            Print the values
-            System.out.println("Values after parsing: ");
-            for (int i = 0; i < terms.length; i++) {
-                System.out.println(terms[i]);
-//                Print the data type
-                System.out.println(terms[i].getClass());
-            }
+//            System.out.println("Values after parsing: ");
+//            for (int i = 0; i < terms.length; i++) {
+//                System.out.println(terms[i]);
+////                Print the data type
+//                System.out.println(terms[i].getClass());
+//            }
 
 //
             Tuple tuple = new Tuple(terms);
-            System.out.println("Tuple: " + tuple);
+//            System.out.println("Tuple: " + tuple);
             return tuple;
 
         } catch (IOException e) {
@@ -253,8 +254,24 @@ public class ScanOperator extends Operator{
     public void dump() {
         reset();
         Tuple tuple = getNextTuple();
+        FileWriter pw = null;
+        File file = new File("data/evaluation/data.csv");
+
+        if (file.exists()) {
+            file.delete();
+        }
+
         while (tuple != null) {
-            System.out.println(tuple);
+            try {
+                pw = new FileWriter("data/evaluation/data.csv" , true);
+                pw.append(tuple.toString());
+                pw.append("\n");
+                pw.flush();
+                pw.close();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             tuple = getNextTuple();
         }
     }

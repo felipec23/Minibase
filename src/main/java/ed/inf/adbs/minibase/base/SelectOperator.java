@@ -2,6 +2,9 @@ package ed.inf.adbs.minibase.base;
 
 import ed.inf.adbs.minibase.parser.QueryParser;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.function.Predicate;
@@ -61,6 +64,8 @@ public class SelectOperator extends Operator {
     }
 
 
+
+
     public boolean evaluateSelectionCondition(Tuple tuple) {
 
 //        List to save all the results of the evaluation of the comparison atoms:
@@ -105,6 +110,24 @@ public class SelectOperator extends Operator {
             return true;
         }
 
+    }
+    @Override
+    public List<String> getSchemaOfRelation() {
+        //            Use the schema to get the data types of the attributes
+        Catalog catalog = Catalog.getInstance();
+        Relation relation = catalog.getRelation(relationName);
+        List<String> schema = relation.getSchema();
+
+//            Print schema, say that print it
+        System.out.println("Schema: " + schema);
+
+        return schema;
+
+    }
+
+    @Override
+    public String getRelationName() {
+        return relationName;
     }
 
     public static List<ComparisonAtom> setSelectionCondition(Query query) {
@@ -285,6 +308,32 @@ public class SelectOperator extends Operator {
 
     };
 
+    @Override
+    public void dump() {
+        reset();
+        Tuple tuple = getNextTuple();
+        FileWriter pw = null;
+        File file = new File("data/evaluation/data.csv");
+
+        if (file.exists()) {
+            file.delete();
+        }
+
+        while (tuple != null) {
+            try {
+                pw = new FileWriter("data/evaluation/data.csv" , true);
+                pw.append(tuple.toString());
+                pw.append("\n");
+                pw.flush();
+                pw.close();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            tuple = getNextTuple();
+        }
+    }
+
 
         public void calculate(){
 //        IN ALL PRINTS, PRINT THE NAME OF THE VARIABLE TO SEE WHAT IS BEING PRINTED!
@@ -346,6 +395,8 @@ public class SelectOperator extends Operator {
 //        Get
         }
     }
+
+
 
 
 //

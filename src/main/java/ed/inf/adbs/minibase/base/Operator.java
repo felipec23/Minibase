@@ -15,8 +15,24 @@ public class Operator {
     public void reset() {
     }
 
+    public void open() {
+    }
+
+    public void close() {
+    }
+
     public void dump() {
     }
 
+    public void dump(String fileName) {
+    }
+
+    public String getRelationName() {
+        return null;
+    }
+
+public List<String> getSchemaOfRelation() {
+        return null;
+    }
 
 }
