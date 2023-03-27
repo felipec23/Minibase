@@ -31,8 +31,11 @@ public class Operator {
         return null;
     }
 
-public List<String> getSchemaOfRelation() {
+    public List<String> getSchemaOfRelation() {
         return null;
     }
 
+    public boolean hasNext() {
+        return false;
+    }
 }

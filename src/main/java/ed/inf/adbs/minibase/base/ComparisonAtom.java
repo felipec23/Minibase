@@ -1,5 +1,8 @@
 package ed.inf.adbs.minibase.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ComparisonAtom extends Atom {
 
     private Term term1;
@@ -10,29 +13,41 @@ public class ComparisonAtom extends Atom {
 
     private String type;
 
-    private Integer index;
+    private List<Integer> indexes;
 
-    private String relationName;
+    private List<String> relationsNames;
 
     public ComparisonAtom(Term term1, Term term2, ComparisonOperator op) {
         this.term1 = term1;
         this.term2 = term2;
         this.op = op;
         this.type = "default";
-        this.index = -1;
-        this.relationName = "default";
+        this.indexes = new ArrayList<>();
+        this.relationsNames = new ArrayList<>();
     }
 
-    public void setRelationName(String relationName) {
-    	this.relationName = relationName;
+    public void setRelationsNames(List<String> relationsNames) {
+    	this.relationsNames = relationsNames;
     }
 
-    public void setIndex(Integer index) {
-    	this.index = index;
+    public void setIndexes(List<Integer> indexes) {
+    	this.indexes = indexes;
     }
 
     public void setType(String type) {
     	this.type = type;
+    }
+
+    public String getType() {
+    	return this.type;
+    }
+
+    public List<Integer> getIndexes() {
+    	return this.indexes;
+    }
+
+    public List<String> getRelationsNames() {
+    	return this.relationsNames;
     }
 
 

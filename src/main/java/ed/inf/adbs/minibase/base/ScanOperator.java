@@ -229,7 +229,7 @@ public class ScanOperator extends Operator{
 
 //
             Tuple tuple = new Tuple(terms);
-//            System.out.println("Tuple: " + tuple);
+            System.out.println("Tuple to send from scan: " + tuple);
             return tuple;
 
         } catch (IOException e) {
@@ -237,6 +237,26 @@ public class ScanOperator extends Operator{
             return null;
         }
     }
+
+    // HasNext function to check if there is a next tuple in the relation:
+    @Override
+    public boolean hasNext() {
+        String line;
+        try {
+            line = reader.readLine();
+            if (line == null) {
+                reader.close();
+                return false;
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
 
     @Override
     public void reset() {
@@ -275,6 +295,8 @@ public class ScanOperator extends Operator{
             tuple = getNextTuple();
         }
     }
+
+
 
 
 
