@@ -12,13 +12,13 @@ public class Term {
 //    Create a function to check if two constants are equal:
     public boolean equals(Term right) {
 
-        System.out.println("Comparing from Term: " + this.toString() + " and " + right.toString());
+//        System.out.println("Comparing from Term: " + this.toString() + " and " + right.toString());
         if (this.toString().equals(right.toString())) {
-            System.out.println("They are equal");
+//            System.out.println("They are equal");
             return true;
         }
         else{
-            System.out.println("They are not equal");
+//            System.out.println("They are not equal");
             return false;
         }
 

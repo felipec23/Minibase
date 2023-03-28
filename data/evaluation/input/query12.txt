@@ -1,1 +1,1 @@
-Q(x) :- R(x, y, z), S(y, u, v), x = 8
+Q(x, y, z, y, u, v) :- R(x, y, z), S(y, u, v), x = 8

@@ -34,6 +34,31 @@ public class ComparisonAtom extends Atom {
     	this.indexes = indexes;
     }
 
+    /**
+     * A method used to determine whether this comparison atom is contained
+     * in a list of terms.
+     * @param terms A list of terms that used to judge containment.
+     * @return true if contained, false if not.
+     */
+    public boolean containedIn(List<Term> terms){
+        // if both the terms in this comparison atom are constant
+        // just return true
+        if(term1 instanceof Constant && term2 instanceof  Constant){
+            return true;
+        }
+        // else find all the variables and check whether it's a subset
+        // of the given list of terms
+        List<Variable> variablesInCA = new ArrayList<>();
+        if(term1 instanceof  Variable){
+            variablesInCA.add((Variable)term1);
+        }
+        if(term2 instanceof  Variable){
+            variablesInCA.add((Variable)term2);
+        }
+        return  terms.containsAll(variablesInCA);
+    }
+
+
     public void setType(String type) {
     	this.type = type;
     }

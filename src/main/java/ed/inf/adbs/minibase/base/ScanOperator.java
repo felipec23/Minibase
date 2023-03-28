@@ -1,10 +1,6 @@
 package ed.inf.adbs.minibase.base;
 
-import ed.inf.adbs.minibase.parser.QueryParser;
-
-import javax.xml.validation.Schema;
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +18,9 @@ public class ScanOperator extends Operator{
 
     private List<String> schema;
 
-    public ScanOperator(String relationName) {
+    public ScanOperator(String relationName, Query query) {
         super(null);
-//        this.query = query;
+        this.query = query;
         this.catalog = Catalog.getInstance();
         this.relationName = relationName;
         this.schema = getSchemaOfRelation();
@@ -170,10 +166,44 @@ public class ScanOperator extends Operator{
     }
 
     @Override
+    public List<Term> getTermsOfRelationalAtom() {
+
+        // Iterate over relational atoms in the body
+        // If the name of the relational atom is the same as the relation name
+        // Get the terms of the relational atom
+
+        List<Term> terms = new ArrayList<>();
+        for (Atom atom : query.getBody()) {
+            if (atom instanceof RelationalAtom) {
+                if (((RelationalAtom) atom).getName().equals(relationName)) {
+                    terms = ((RelationalAtom) atom).getTerms();
+                }
+            }
+
+        }
+
+        return terms;
+
+
+
+
+    }
+
+    @Override
+    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
+        return null;
+    }
+
+    @Override
     public Tuple getNextTuple() {
         String line;
         try {
+
+
             line = reader.readLine();
+            System.out.println("FROM SCAN OPERATOR");
+            System.out.println("Reader: " + reader);
+            System.out.println("LINE: " + line);
             if (line == null) {
                 reader.close();
                 return null;
@@ -229,6 +259,8 @@ public class ScanOperator extends Operator{
 
 //
             Tuple tuple = new Tuple(terms);
+            // Get variables for the tuple
+            tuple.setVariables(getTermsOfRelationalAtom());
             System.out.println("Tuple to send from scan: " + tuple);
             return tuple;
 

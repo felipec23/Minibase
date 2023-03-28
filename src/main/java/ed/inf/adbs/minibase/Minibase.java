@@ -166,80 +166,6 @@ public class Minibase {
     }
 
 
-//    function to do only scan
-    public static void runScan(Query query){
-        //            Iterate over each relational atom and get the relation name
-        List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
-
-        for (RelationalAtom relationalAtom : relationalAtoms) {
-            String relationName = relationalAtom.getName();
-            System.out.println("Current relation name: " + relationName);
-
-            //        Create ScanOperator object, given the query and the relation name
-            ScanOperator scanOperator = new ScanOperator(relationName);
-
-            System.out.println("Before dump:");
-            scanOperator.dump();
-
-        }
-    }
-
-    public static void runSelection(Query query) {
-        //            Iterate over each relational atom and get the relation name
-        List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
-
-        for (RelationalAtom relationalAtom : relationalAtoms) {
-            String relationName = relationalAtom.getName();
-            System.out.println("Current relation name: " + relationName);
-
-            //        Create SelectionOperator object, given the query and the relation name
-            SelectOperator selectionOperator = new SelectOperator(query, relationName);
-
-            System.out.println("Selection operator dump:");
-            selectionOperator.dump();
-        }
-    }
-
-
-    public static void runProjection(Query query) {
-        //            Iterate over each relational atom and get the relation name
-        List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
-
-        for (RelationalAtom relationalAtom : relationalAtoms) {
-            String relationName = relationalAtom.getName();
-            System.out.println("Current relation name: " + relationName);
-
-//            For this case, the child is a scan operator:
-            ScanOperator scanOperator = new ScanOperator(relationName);
-
-            //        Create ProjectionOperator object, given the query and the relation name
-            ProjectOperator projectionOperator = new ProjectOperator(scanOperator, query);
-
-            System.out.println("Projection operator dump:");
-            projectionOperator.dump();
-        }
-    }
-
-    public static void runSelectionProjection(Query query) {
-        //            Iterate over each relational atom and get the relation name
-        List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
-
-        for (RelationalAtom relationalAtom : relationalAtoms) {
-            String relationName = relationalAtom.getName();
-            System.out.println("Current relation name: " + relationName);
-
-
-            //        Create SelectionOperator object, given the query and the relation name
-            SelectOperator selectionOperator = new SelectOperator(query, relationName);
-
-            //        Create ProjectionOperator object, given the query and the relation name
-            ProjectOperator projectionOperator = new ProjectOperator(selectionOperator, query);
-
-            System.out.println("Selection projection operator dump:");
-            projectionOperator.dump();
-        }
-
-    }
 
 //    Create a function to get the comparison atoms from the query:
     public static List<ComparisonAtom> getComparisonAtomsFromQuery(Query query) {
@@ -649,303 +575,357 @@ public class Minibase {
     }
 
 
-
-
-
-
-
-    public static void runJoins(List<List<RelationalAtom>> joinsGroups, List<ComparisonAtom> comparisonAtoms){
-
-        // Create list for saving the results of each join:
-        List<List<Tuple>> joinedTuples = new ArrayList<>();
-
-        List<List<Term>> joinedTerms = new ArrayList<>();
-
-        List<List<String>> joinedRelationsNames = new ArrayList<>();
-
-        // Iterate over the groups:
-        for (List<RelationalAtom> group : joinsGroups) {
-            // If the group has only one relational atom:
-            if (group.size() == 1) {
-
-                List<Tuple> tuplesToStore = new ArrayList<>();
-//                List<RelationalAtom> atomsToSave = new ArrayList<>();
+//    public static void testFunction(Query query, List<ComparisonAtom> comparisonAtoms){
 //
-                RelationalAtom relationalAtom1 = group.get(0);
-                String relAtomName1 = relationalAtom1.getName();
-                List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, comparisonAtoms);
-                SelectionOperator selectionOp1 = new SelectionOperator(comparisonAtomsBetweenAtom1, relationalAtom1.getName());
+//        // Array to save all join terms:
+//        List<Term> processedTerms = new ArrayList<>();
+//
+//        // Get the relational atoms from the query:
+//        List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
+//
+//        // Get first atom
+//        RelationalAtom relationalAtom1 = relationalAtoms.get(0);
+//
+//        // Get the name of the first relational atom:
+//        String relAtomName1 = relationalAtom1.getName();
+//
+//        // Get the terms of the first relational atom, add them:
+//        processedTerms.addAll(relationalAtom1.getTerms());
+//
+//        root
+//
+//
+//
+//
+//        List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, comparisonAtoms);
+//
+//
+//        // Print both:
+//        System.out.println("Comparison atoms between atom 1: " + comparisonAtomsBetweenAtom1);
+//
+//
+//        // Create selection operator for the first atom:
+//        SelectionOperator selectionOp1 = new SelectionOperator(comparisonAtomsBetweenAtom1, relationalAtom1.getName());
+//
+//        // Create selection operator for the second atom:
+//        SelectionOperator selectionOp2 = new SelectionOperator(comparisonAtomsBetweenAtom2, relationalAtom2.getName());
+//
+//        // Join conditions:
+//        List<ComparisonAtom> joinConditions = findJoinCondition(relAtomName1, relAtomName2, comparisonAtoms);
+//
+//        // Create join operator:
+//        JoinOperator joinOp = new JoinOperator(selectionOp1, selectionOp2, joinConditions);
+//
+//        // Get next tuple of the join operator:
+//        Tuple nextTuple = joinOp.getNextTuple();
+//
+//        // Print the next tuple:
+//        System.out.println("Next tuple JOIN OP: " + nextTuple);
+//
+//        // Print the result of the join:
+//
+//
+//
+//    }
 
-                // Saving order of terms
-                List<Term> termsToStore = new ArrayList<>();
-                termsToStore.addAll(relationalAtom1.getTerms());
-
-                // Saving order of relations names
-                List<String> relationsNamesToStore = new ArrayList<>();
-                relationsNamesToStore.add(relAtomName1);
 
 
-                // Itearate over all the tuples from the selection operator:
-                while (true){
-                    Tuple tuple = selectionOp1.getNextTuple();
-                    if (tuple == null){
-                        break;
-                    }
-
-                    tuplesToStore.add(tuple);
 
 
-                    // Create list of terms with the tuple:
-//                    List<Term> terms = new ArrayList<>();
-//                    for (int i = 0; i < tuple.getTuple().size(); i++) {
-//                        terms.add(new Term(tuple.getTuple(i)));
+
+
+//    public static void runJoins(List<List<RelationalAtom>> joinsGroups, List<ComparisonAtom> comparisonAtoms){
+//
+//        // Create list for saving the results of each join:
+//        List<List<Tuple>> joinedTuples = new ArrayList<>();
+//
+//        List<List<Term>> joinedTerms = new ArrayList<>();
+//
+//        List<List<String>> joinedRelationsNames = new ArrayList<>();
+//
+//        // Iterate over the groups:
+//        for (List<RelationalAtom> group : joinsGroups) {
+//            // If the group has only one relational atom:
+//            if (group.size() == 1) {
+//
+//                List<Tuple> tuplesToStore = new ArrayList<>();
+////                List<RelationalAtom> atomsToSave = new ArrayList<>();
+////
+//                RelationalAtom relationalAtom1 = group.get(0);
+//                String relAtomName1 = relationalAtom1.getName();
+//                List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, comparisonAtoms);
+//                SelectionOperator selectionOp1 = new SelectionOperator(comparisonAtomsBetweenAtom1, relationalAtom1.getName());
+//
+//                // Saving order of terms
+//                List<Term> termsToStore = new ArrayList<>();
+//                termsToStore.addAll(relationalAtom1.getTerms());
+//
+//                // Saving order of relations names
+//                List<String> relationsNamesToStore = new ArrayList<>();
+//                relationsNamesToStore.add(relAtomName1);
+//
+//
+//                // Itearate over all the tuples from the selection operator:
+//                while (true){
+//                    Tuple tuple = selectionOp1.getNextTuple();
+//                    if (tuple == null){
+//                        break;
 //                    }
-//                    atomsToSave.add(new RelationalAtom(relAtomName1, tuple.getTuple()));
-                }
-
-                joinedTuples.add(tuplesToStore);
-                joinedTerms.add(termsToStore);
-                joinedRelationsNames.add(relationsNamesToStore);
-
-            }
-
-            // If the group has two relational atoms:
-            else if (group.size() == 2) {
-
-                // Create list for storing tuples
-                List<Tuple> tuplesToStore = new ArrayList<>();
-
-                // Run the join:
-                RelationalAtom relationalAtom1 = group.get(0);
-                RelationalAtom relationalAtom2 = group.get(1);
-
-                // Name of each relational atom:
-                String relAtomName1 = relationalAtom1.getName();
-                String relAtomName2 = relationalAtom2.getName();
-
-                // Join the two array of variables of the two atoms:
-                List<Term> termsToStore = new ArrayList<>();
-                termsToStore.addAll(relationalAtom1.getTerms());
-                termsToStore.addAll(relationalAtom2.getTerms());
-
-                // Join the two array of relations names of the two atoms:
-                List<String> relationsNamesToStore = new ArrayList<>();
-                relationsNamesToStore.add(relAtomName1);
-                relationsNamesToStore.add(relAtomName2);
-
-                // Get the comparison atoms that are between the first atom
-                // Between atoms have the type: "between atoms", "implicit"
-                List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, comparisonAtoms);
-                List<ComparisonAtom> comparisonAtomsBetweenAtom2 = getComparisonAtomsBetweenAtom(relAtomName2, comparisonAtoms);
-
-                // Print both:
-                System.out.println("Comparison atoms between atom 1: " + comparisonAtomsBetweenAtom1);
-                System.out.println("Comparison atoms between atom 2: " + comparisonAtomsBetweenAtom2);
-
-                // Create selection operator for the first atom:
-                SelectionOperator selectionOp1 = new SelectionOperator(comparisonAtomsBetweenAtom1, relationalAtom1.getName());
-
-                // Create selection operator for the second atom:
-                SelectionOperator selectionOp2 = new SelectionOperator(comparisonAtomsBetweenAtom2, relationalAtom2.getName());
-
-
-                // Dump the selection operators:
-//                selectionOp1.dump();
-//                selectionOp2.dump();
-
-                // Find the join conditions between the two atoms:
-                List<ComparisonAtom> joinConditions = findJoinCondition(relAtomName1, relAtomName2, comparisonAtoms);
-
-                // Print the join conditions:
-                System.out.println("Join conditions: " + joinConditions);
-
-                // Iterate over all the tuples in the first selection operator:
-                while (true) {
-                    System.out.println("Selection operator 1 has next");
-                    // Get the next tuple:
-                    Tuple tuple1 = selectionOp1.getNextTuple();
-
-                    // If tuple1 is null, no more tuples in the selection operator:
-                    if (tuple1 == null) {
-                        System.out.println("Tuple 1 is null. No more tuples in selection operator 1");
-                        break;
-                    }
-
-                    // Iterate over all the tuples in the second selection operator:
-                    while (true) {
-                        // Get the next tuple:
-                        Tuple tuple2 = selectionOp2.getNextTuple();
-
-                        // If tuple2 is null, no more tuples in the selection operator:
-                        if (tuple2 == null) {
-                            System.out.println("Tuple 2 is null. No more tuples in selection operator 2");
-                            System.out.println("Reseting selection operator 2 for next tuple 1");
-                            selectionOp2.reset();
-                            break;
-                        }
-
-                        // Print the tuples:
-                        System.out.println("Tuple 1: " + tuple1);
-                        System.out.println("Tuple 2: " + tuple2);
-
-                        if (checkTuples(tuple1, tuple2, joinConditions)) {
-                            // Create a new tuple that will be the result of the join:
-                            // Creat list of terms:
-                            List<Term> terms = new ArrayList<>();
-
-                            // Add the terms from the first tuple:
-                            // Iterate over the terms in the tuple:
-                            for (Term term : tuple1.getTuple()) {
-                                // Add the term to the list of terms:
-                                terms.add(term);
-                            }
-
-                            // Add the terms from the second tuple:
-                            // Iterate over the terms in the tuple:
-                            for (Term term : tuple2.getTuple()) {
-                                // Add the term to the list of terms:
-                                terms.add(term);
-                            }
-
-                            // Create the join tuple:
-                            Tuple joinTuple = new Tuple(terms.toArray(new Term[0]));
-
-                            // Print the join tuple:
-                            System.out.println("Join tuple: " + joinTuple);
-
-                            // Add the join tuple to the list of tuples:
-                            tuplesToStore.add(joinTuple);
-                        }
-
-
-
-
-                    }
-
-                    // Create new map
-
-                    // Reset the second selection operator:
-//                    selectionOp2.reset();
-
-                }
-
-                // Create join operator:
-//                JoinOperator joinOp = new JoinOperator(selectionOp1, selectionOp2, relationalAtom1.getName(), relationalAtom2.getName());
-
-
-                // Add the tuples to the list of joined tuples:
-                joinedTuples.add(tuplesToStore);
-                joinedTerms.add(termsToStore);
-                joinedRelationsNames.add(relationsNamesToStore);
-
-
-
-
-
-            }
-
-
-        }
-
-        //
-//        return joinedTuples;
-        // Print the joined tuples:
-        System.out.println("Joined tuples: " + joinedTuples);
-        System.out.println("Joined terms: " + joinedTerms);
-        System.out.println("Joined relations names: " + joinedRelationsNames);
-
-        // New join will be between the right of the first join and the left of the second join (or the only one in second join)
-
-
-        String relNameRight = joinedRelationsNames.get(0).get(1);
-        String relNameLeft = joinedRelationsNames.get(1).get(0);
-
-        // Find the join conditions between the two atoms:
-        List<ComparisonAtom> newJoinConditions = findJoinCondition(relNameRight, relNameLeft, comparisonAtoms);
-
-        // Convert to string a
-
-        // Print the new join conditions:
-        System.out.println("New join conditions: " + newJoinConditions);
-
-        // Update positions of the terms in the new join conditions:
-        // Iterate over the new join conditions:
-        for (ComparisonAtom comparisonAtom : newJoinConditions) {
-            // Get the left and right terms:
-            Term leftTerm = comparisonAtom.getTerm1();
-            Term rightTerm = comparisonAtom.getTerm2();
-
-            // Get the position of the left term:
-            int leftTermPosition = joinedTerms.get(0).indexOf(leftTerm);
-
-            // Get the position of the right term:
-            int rightTermPosition = joinedTerms.get(1).indexOf(rightTerm);
-
-            // List with new indexes:
-            List<Integer> newIndexes = new ArrayList<>();
-            newIndexes.add(leftTermPosition);
-            newIndexes.add(rightTermPosition);
-
-            // Set the new indexes:
-            comparisonAtom.setIndexes(newIndexes);
-
-            // Print the comparison atom:
-            System.out.println("Comparison atom: " + comparisonAtom);
-            // Print the indexes:
-            System.out.println("Indexes: " + comparisonAtom.getIndexes());
-
-        }
-
-        // Iterate over the joined tuples and find the tuples that satisfy the new join conditions:
-        // Iterate over the joined tuples:
-        List<Tuple> tuplesLeft = joinedTuples.get(0);
-        List<Tuple> tuplesRight = joinedTuples.get(1);
-
-        // Tuplestostore:
-        List<Tuple> tuplesToStore = new ArrayList<>();
-
-        // Iterate over the tuples in the left:
-        for (Tuple tupleLeft : tuplesLeft) {
-            // Iterate over the tuples in the right:
-            for (Tuple tupleRight : tuplesRight) {
-                // Check if the tuples satisfy the new join conditions:
-                if (checkTuples(tupleLeft, tupleRight, newJoinConditions)) {
-                    // Create a new tuple that will be the result of the join:
-                    // Creat list of terms:
-                    List<Term> terms = new ArrayList<>();
-
-                    // Add the terms from the first tuple:
-                    // Iterate over the terms in the tuple:
-                    for (Term term : tupleLeft.getTuple()) {
-                        // Add the term to the list of terms:
-                        terms.add(term);
-                    }
-
-                    // Add the terms from the second tuple:
-                    // Iterate over the terms in the tuple:
-                    for (Term term : tupleRight.getTuple()) {
-                        // Add the term to the list of terms:
-                        terms.add(term);
-                    }
-
-                    // Create the join tuple:
-                    Tuple joinTuple = new Tuple(terms.toArray(new Term[0]));
-
-                    // Print the join tuple:
-                    System.out.println("Join tuple: " + joinTuple);
-
-                    // Store the join tuple:
-                    tuplesToStore.add(joinTuple);
-                }
-            }
-        }
-        // Iterate over
-
-        // Print the tuples to store:
-        System.out.println("Tuples to store: " + tuplesToStore);
-
-
-    }
+//
+//                    tuplesToStore.add(tuple);
+//
+//
+//                    // Create list of terms with the tuple:
+////                    List<Term> terms = new ArrayList<>();
+////                    for (int i = 0; i < tuple.getTuple().size(); i++) {
+////                        terms.add(new Term(tuple.getTuple(i)));
+////                    }
+////                    atomsToSave.add(new RelationalAtom(relAtomName1, tuple.getTuple()));
+//                }
+//
+//                joinedTuples.add(tuplesToStore);
+//                joinedTerms.add(termsToStore);
+//                joinedRelationsNames.add(relationsNamesToStore);
+//
+//            }
+//
+//            // If the group has two relational atoms:
+//            else if (group.size() == 2) {
+//
+//                // Create list for storing tuples
+//                List<Tuple> tuplesToStore = new ArrayList<>();
+//
+//                // Run the join:
+//                RelationalAtom relationalAtom1 = group.get(0);
+//                RelationalAtom relationalAtom2 = group.get(1);
+//
+//                // Name of each relational atom:
+//                String relAtomName1 = relationalAtom1.getName();
+//                String relAtomName2 = relationalAtom2.getName();
+//
+//                // Join the two array of variables of the two atoms:
+//                List<Term> termsToStore = new ArrayList<>();
+//                termsToStore.addAll(relationalAtom1.getTerms());
+//                termsToStore.addAll(relationalAtom2.getTerms());
+//
+//                // Join the two array of relations names of the two atoms:
+//                List<String> relationsNamesToStore = new ArrayList<>();
+//                relationsNamesToStore.add(relAtomName1);
+//                relationsNamesToStore.add(relAtomName2);
+//
+//                // Get the comparison atoms that are between the first atom
+//                // Between atoms have the type: "between atoms", "implicit"
+//                List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, comparisonAtoms);
+//                List<ComparisonAtom> comparisonAtomsBetweenAtom2 = getComparisonAtomsBetweenAtom(relAtomName2, comparisonAtoms);
+//
+//                // Print both:
+//                System.out.println("Comparison atoms between atom 1: " + comparisonAtomsBetweenAtom1);
+//                System.out.println("Comparison atoms between atom 2: " + comparisonAtomsBetweenAtom2);
+//
+//                // Create selection operator for the first atom:
+//                SelectionOperator selectionOp1 = new SelectionOperator(comparisonAtomsBetweenAtom1, relationalAtom1.getName());
+//
+//                // Create selection operator for the second atom:
+//                SelectionOperator selectionOp2 = new SelectionOperator(comparisonAtomsBetweenAtom2, relationalAtom2.getName());
+//
+//
+//                // Dump the selection operators:
+////                selectionOp1.dump();
+////                selectionOp2.dump();
+//
+//                // Find the join conditions between the two atoms:
+//                List<ComparisonAtom> joinConditions = findJoinCondition(relAtomName1, relAtomName2, comparisonAtoms);
+//
+//                // Print the join conditions:
+//                System.out.println("Join conditions: " + joinConditions);
+//
+//                // Iterate over all the tuples in the first selection operator:
+//                while (true) {
+//                    System.out.println("Selection operator 1 has next");
+//                    // Get the next tuple:
+//                    Tuple tuple1 = selectionOp1.getNextTuple();
+//
+//                    // If tuple1 is null, no more tuples in the selection operator:
+//                    if (tuple1 == null) {
+//                        System.out.println("Tuple 1 is null. No more tuples in selection operator 1");
+//                        break;
+//                    }
+//
+//                    // Iterate over all the tuples in the second selection operator:
+//                    while (true) {
+//                        // Get the next tuple:
+//                        Tuple tuple2 = selectionOp2.getNextTuple();
+//
+//                        // If tuple2 is null, no more tuples in the selection operator:
+//                        if (tuple2 == null) {
+//                            System.out.println("Tuple 2 is null. No more tuples in selection operator 2");
+//                            System.out.println("Reseting selection operator 2 for next tuple 1");
+//                            selectionOp2.reset();
+//                            break;
+//                        }
+//
+//                        // Print the tuples:
+//                        System.out.println("Tuple 1: " + tuple1);
+//                        System.out.println("Tuple 2: " + tuple2);
+//
+//                        if (checkTuples(tuple1, tuple2, joinConditions)) {
+//                            // Create a new tuple that will be the result of the join:
+//                            // Creat list of terms:
+//                            List<Term> terms = new ArrayList<>();
+//
+//                            // Add the terms from the first tuple:
+//                            // Iterate over the terms in the tuple:
+//                            for (Term term : tuple1.getTuple()) {
+//                                // Add the term to the list of terms:
+//                                terms.add(term);
+//                            }
+//
+//                            // Add the terms from the second tuple:
+//                            // Iterate over the terms in the tuple:
+//                            for (Term term : tuple2.getTuple()) {
+//                                // Add the term to the list of terms:
+//                                terms.add(term);
+//                            }
+//
+//                            // Create the join tuple:
+//                            Tuple joinTuple = new Tuple(terms.toArray(new Term[0]));
+//
+//                            // Print the join tuple:
+//                            System.out.println("Join tuple: " + joinTuple);
+//
+//                            // Add the join tuple to the list of tuples:
+//                            tuplesToStore.add(joinTuple);
+//                        }
+//
+//
+//
+//
+//                    }
+//
+//                    // Create new map
+//
+//                    // Reset the second selection operator:
+////                    selectionOp2.reset();
+//
+//                }
+//
+//                // Create join operator:
+////                JoinOperator joinOp = new JoinOperator(selectionOp1, selectionOp2, relationalAtom1.getName(), relationalAtom2.getName());
+//
+//
+//                // Add the tuples to the list of joined tuples:
+//                joinedTuples.add(tuplesToStore);
+//                joinedTerms.add(termsToStore);
+//                joinedRelationsNames.add(relationsNamesToStore);
+//
+//
+//
+//
+//
+//            }
+//
+//
+//        }
+//
+//        //
+////        return joinedTuples;
+//        // Print the joined tuples:
+//        System.out.println("Joined tuples: " + joinedTuples);
+//        System.out.println("Joined terms: " + joinedTerms);
+//        System.out.println("Joined relations names: " + joinedRelationsNames);
+//
+//        // New join will be between the right of the first join and the left of the second join (or the only one in second join)
+//
+//
+//        String relNameRight = joinedRelationsNames.get(0).get(1);
+//        String relNameLeft = joinedRelationsNames.get(1).get(0);
+//
+//        // Find the join conditions between the two atoms:
+//        List<ComparisonAtom> newJoinConditions = findJoinCondition(relNameRight, relNameLeft, comparisonAtoms);
+//
+//        // Convert to string a
+//
+//        // Print the new join conditions:
+//        System.out.println("New join conditions: " + newJoinConditions);
+//
+//        // Update positions of the terms in the new join conditions:
+//        // Iterate over the new join conditions:
+//        for (ComparisonAtom comparisonAtom : newJoinConditions) {
+//            // Get the left and right terms:
+//            Term leftTerm = comparisonAtom.getTerm1();
+//            Term rightTerm = comparisonAtom.getTerm2();
+//
+//            // Get the position of the left term:
+//            int leftTermPosition = joinedTerms.get(0).indexOf(leftTerm);
+//
+//            // Get the position of the right term:
+//            int rightTermPosition = joinedTerms.get(1).indexOf(rightTerm);
+//
+//            // List with new indexes:
+//            List<Integer> newIndexes = new ArrayList<>();
+//            newIndexes.add(leftTermPosition);
+//            newIndexes.add(rightTermPosition);
+//
+//            // Set the new indexes:
+//            comparisonAtom.setIndexes(newIndexes);
+//
+//            // Print the comparison atom:
+//            System.out.println("Comparison atom: " + comparisonAtom);
+//            // Print the indexes:
+//            System.out.println("Indexes: " + comparisonAtom.getIndexes());
+//
+//        }
+//
+//        // Iterate over the joined tuples and find the tuples that satisfy the new join conditions:
+//        // Iterate over the joined tuples:
+//        List<Tuple> tuplesLeft = joinedTuples.get(0);
+//        List<Tuple> tuplesRight = joinedTuples.get(1);
+//
+//        // Tuplestostore:
+//        List<Tuple> tuplesToStore = new ArrayList<>();
+//
+//        // Iterate over the tuples in the left:
+//        for (Tuple tupleLeft : tuplesLeft) {
+//            // Iterate over the tuples in the right:
+//            for (Tuple tupleRight : tuplesRight) {
+//                // Check if the tuples satisfy the new join conditions:
+//                if (checkTuples(tupleLeft, tupleRight, newJoinConditions)) {
+//                    // Create a new tuple that will be the result of the join:
+//                    // Creat list of terms:
+//                    List<Term> terms = new ArrayList<>();
+//
+//                    // Add the terms from the first tuple:
+//                    // Iterate over the terms in the tuple:
+//                    for (Term term : tupleLeft.getTuple()) {
+//                        // Add the term to the list of terms:
+//                        terms.add(term);
+//                    }
+//
+//                    // Add the terms from the second tuple:
+//                    // Iterate over the terms in the tuple:
+//                    for (Term term : tupleRight.getTuple()) {
+//                        // Add the term to the list of terms:
+//                        terms.add(term);
+//                    }
+//
+//                    // Create the join tuple:
+//                    Tuple joinTuple = new Tuple(terms.toArray(new Term[0]));
+//
+//                    // Print the join tuple:
+//                    System.out.println("Join tuple: " + joinTuple);
+//
+//                    // Store the join tuple:
+//                    tuplesToStore.add(joinTuple);
+//                }
+//            }
+//        }
+//        // Iterate over
+//
+//        // Print the tuples to store:
+//        System.out.println("Tuples to store: " + tuplesToStore);
+//
+//
+//    }
 
 
     public static boolean checkTuples(Tuple tupleLeft, Tuple tupleRight, List<ComparisonAtom> newJoinConditions){
@@ -1001,59 +981,92 @@ public class Minibase {
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) throws IOException {
         // TODO: add your implementation
 
+        Query query = null;
+        // Parse the query:
         try {
-            Query query = QueryParser.parse(Paths.get(inputFile));
-
-//            Print query:
-            System.out.println("Query parsed: " + query);
-
-            //  Get type of query:
-            String queryType = getQueryType(query);
-            System.out.println("Query type: " + queryType);
-
-            if (queryType.equals("scan")) {
-                runScan(query);
-            }
-
-            else if (queryType.equals("projection")) {
-                runProjection(query);
-            }
-
-            else if (queryType.equals("selection")) {
-                runSelection(query);
-
-            }
-
-            else if (queryType.equals("selection_projection")) {
-                runSelectionProjection(query);
-
-            }
-
-            else if (queryType.equals("join")) {
-                List<ComparisonAtom> allComparisonAtoms =  analyzeConditions(query);
-
-                // If there are no comparison atoms, then it's a cross product:
-                if (allComparisonAtoms.isEmpty()) {
-                    // runCrossProduct(query);
-                }
-
-                else {
-                    // Get the join groups:
-                    List<List<RelationalAtom>> joinGroups = getJoinGroups(query);
-
-                    // Run the joins:
-                    runJoins(joinGroups, allComparisonAtoms);
+            // Parse the query:
+            query = QueryParser.parse(Paths.get(inputFile));
 
 
-                }
+        }
 
-            }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
-            else {
-                System.out.println("Query type not recognized");
-                analyzeConditions(query);
-            }
+        Catalog catalog = Catalog.getInstance();
+
+        QueryPlanner queryPlanner = new QueryPlanner();
+        Operator root = queryPlanner.plan(query);
+
+        root.dump();
+
+//        generator = new Generator(query);
+//        Operator root = generator.generateQueryPlan();
+//        root.dump();
+
+
+        // Print
+        System.out.println("Query parsed: " + query);
+        System.out.println("Query type: " + getQueryType(query));
+        System.out.println("Query plan: " + root);
+
+//        try {
+//            Query query = QueryParser.parse(Paths.get(inputFile));
+//
+////            Print query:
+//            System.out.println("Query parsed: " + query);
+//
+//            //  Get type of query:
+//            String queryType = getQueryType(query);
+//            System.out.println("Query type: " + queryType);
+//
+//            if (queryType.equals("scan")) {
+//                runScan(query);
+//            }
+//
+//            else if (queryType.equals("projection")) {
+//                runProjection(query);
+//            }
+//
+//            else if (queryType.equals("selection")) {
+//                runSelection(query);
+//
+//            }
+//
+//            else if (queryType.equals("selection_projection")) {
+//                runSelectionProjection(query);
+//
+//            }
+//
+//            else if (queryType.equals("join")) {
+//                List<ComparisonAtom> allComparisonAtoms =  analyzeConditions(query);
+//
+//                // If there are no comparison atoms, then it's a cross product:
+//                if (allComparisonAtoms.isEmpty()) {
+//                    // runCrossProduct(query);
+//                }
+//
+//                else {
+//                    // Get the join groups:
+////                    List<List<RelationalAtom>> joinGroups = getJoinGroups(query);
+//
+//                    testFunction(query, allComparisonAtoms);
+//
+//                    // Run the joins:
+////                    runJoins(joinGroups, allComparisonAtoms);
+//
+//
+//                }
+//
+//            }
+//
+//
+//            else {
+//                System.out.println("Query type not recognized");
+//                analyzeConditions(query);
+//            }
 
 
 //
@@ -1088,11 +1101,6 @@ public class Minibase {
 
 
 
-        }
-
-         catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
 
 

@@ -12,36 +12,64 @@ public class SelectionOperator extends Operator{
 
     private Operator child;
 
-    public SelectionOperator(List<ComparisonAtom> comparisonAtoms, String relationName) {
+    public SelectionOperator(Operator child, List<ComparisonAtom> comparisonAtoms, String relationName) {
         super(null);
 
         this.comparisonAtoms = comparisonAtoms;
         this.relationName = relationName;
-        this.child = createScanOperator(relationName);
+        this.child = child;
 
 
     }
 
-    public ScanOperator createScanOperator(String relationName) {
-        ScanOperator scanOperator = new ScanOperator(relationName);
 
-        return scanOperator;
+
+//    @Override
+//    public Tuple getNextTuple() {
+//        Tuple tuple = child.getNextTuple();
+//
+//        while (tuple != null) {
+//            if (evaluateSelectionCondition(tuple)) {
+//                System.out.println("Tuple to return: " + tuple);
+//                return tuple;
+//            }
+//
+//            tuple = child.getNextTuple();
+//            System.out.println("New tuple from scan: " + tuple);
+//        }
+//        System.out.println("No more tuples to return from scan. Thus, no more tuples to return from selection.");
+//        return null;
+//    }
+
+    @Override
+    public List<Term> getTermsOfRelationalAtom() {
+        return null;
+    }
+
+    @Override
+    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
+        return null;
     }
 
     @Override
     public Tuple getNextTuple() {
-        Tuple tuple = child.getNextTuple();
+        Tuple t = null;
+        while((t = child.getNextTuple())!=null){
+            //check whether tuple t satisfy the condition
+            if (evaluateSelectionCondition(t)){
 
-        while (tuple != null) {
-            if (evaluateSelectionCondition(tuple)) {
-                System.out.println("Tuple to return: " + tuple);
-                return tuple;
+                // Get the schema of the relation:
+                //List<Term> termsInAtom = child.getTermsOfRelationalAtom();
+
+                //System.out.println("Terms/variables in order in atom: " + termsInAtom);
+                //t.setVariables(termsInAtom);
+
+                System.out.println("VariablesTuple: " + t.getVariables());
+
+                System.out.println("Passing from selection operator as accepted: " + t);
+                return t;
             }
-
-            tuple = child.getNextTuple();
-            System.out.println("New tuple from scan: " + tuple);
         }
-        System.out.println("No more tuples to return from scan. Thus, no more tuples to return from selection.");
         return null;
     }
 
@@ -54,7 +82,8 @@ public class SelectionOperator extends Operator{
 
     @Override
     public void dump() {
-        reset();
+        System.out.println("Dumping selection operator");
+//        reset();
         Tuple tuple = getNextTuple();
         FileWriter pw = null;
         File file = new File("data/evaluation/data.csv");
@@ -85,6 +114,13 @@ public class SelectionOperator extends Operator{
 
 
     public boolean evaluateSelectionCondition(Tuple tuple) {
+
+        System.out.println("Evaluating selection condition");
+        // Print comparison atoms:
+        System.out.println("Comparison atoms: " + comparisonAtoms);
+
+        // Print tuple:
+        System.out.println("Tuple being evaluated: " + tuple);
 
 //        List to save all the results of the evaluation of the comparison atoms:
         List<Boolean> results = new ArrayList<>();

@@ -34,6 +34,8 @@ public class Tuple {
 
     private Term[] tuple;
 
+    private List<Term> variables;
+
     public Tuple(Term... tuple) {
         this.tuple = tuple;
     }
@@ -50,10 +52,28 @@ public class Tuple {
     public String toString() {
         String result = "";
         for (int i = 0; i < tuple.length; i++) {
-            result += tuple[i] + " ";
+
+            // If it's the last element, don't add a comma:
+            if (i == tuple.length - 1) {
+                result += tuple[i];
+                break;
+            }
+
+            result += tuple[i] + ", ";
+
         }
         return result;
     }
+
+    public void setVariables(List<Term> variables) {
+        this.variables = variables;
+    }
+
+    public List<Term> getVariables() {
+        return variables;
+    }
+
+
 }
 
 

@@ -3,13 +3,15 @@ package ed.inf.adbs.minibase.base;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class ProjectOperator extends Operator {
 
     private Operator child;
     private List<Variable> variables;
-//    private Set<List<Term>> buffer;
+    //    private Set<List<Term>> buffer;
 //    private HashSet<List<Term>> buffer;
     private List<String> buffer;
     private Query query;
@@ -26,12 +28,26 @@ public class ProjectOperator extends Operator {
         this.catalog = Catalog.getInstance();
     }
 
+    public ProjectOperator(Query query) {
+        super(query);
+    }
+
+    @Override
+    public List<Term> getTermsOfRelationalAtom() {
+        return null;
+    }
+
+    @Override
+    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
+        return null;
+    }
+
 //    @Override
 //    public List<String> getSchema() {
 //        return variables;
 //    }
 
-//    Function to extract head from query, and get the variables from the head:
+    //    Function to extract head from query, and get the variables from the head:
     public List<Variable> getHeadVariables() {
         List<Variable> queryHead = new ArrayList<>();
         for (Variable variable : query.getHead().getVariables()) {
@@ -64,7 +80,7 @@ public class ProjectOperator extends Operator {
         return isSubset;
     }
 
-//    Function to check if buffer has projected tuple:
+    //    Function to check if buffer has projected tuple:
     public boolean bufferHasProjectedTuple(List<String> buffer, List<Term> projectedTuple) {
         boolean hasTuple = false;
         for (String element : buffer) {
@@ -89,51 +105,33 @@ public class ProjectOperator extends Operator {
 //            Create a list of terms:
             List<Term> projectedTuple = new ArrayList<>();
 
-//            Print schema relation of child:
-            System.out.println("Schema of child: " + child.getSchemaOfRelation());
-
             for (Variable variable : variables) {
 //                Print variable as string:
                 System.out.println("Variable: " + variable.toString());
 //                Get index of variable in the atom:
 //                Get relation of child:
-                String relationName = child.getRelationName();
-
-//                Find the relation name in the body of the query:
-                for (Atom atom : query.getBody()) {
-
-//                    check if atom is instance of relational atom:
-                    if (atom instanceof RelationalAtom) {
-                        RelationalAtom relationalAtom = (RelationalAtom) atom;
-                        if (relationalAtom.getName().equals(relationName)) {
-                            System.out.println("Relation name: " + relationName);
-                            System.out.println("Relation name of atom: " + relationalAtom.getName());
-                            System.out.println("Terms of a tom: " + relationalAtom.getTerms());
 
 
-//                            Check if variable is instance of Term class, if so,
+                // Read variables from tuple as string:
+                List<Term> variablesTuple = tuple.getVariables();
+                System.out.println("Variables in tuple: " + variablesTuple);
 
-//                            Get index of variable in the atom, but as a term:
-                            int index = relationalAtom.getTermsAsString().indexOf(variable.toString());
-                            System.out.println("Index of variable: " + index);
-                            projectedTuple.add(tuple.getTuple(index));
-                        }
+                // Iterate over variables in tuple:
+                Integer index = 0;
+                for (Term term : variablesTuple) {
+                    System.out.println("Term: " + term);
+                    System.out.println("Variable: " + variable);
+                    if (term.equals(variable)) {
+                        System.out.println("Variable found in tuple");
+                        projectedTuple.add(tuple.getTuple(index));
+                        break;
                     }
+
+                    index++;
                 }
-//
+
 
             }
-
-
-////           Iterate over all elements in buffer, each element is a string:
-//            for (String element : buffer) {
-//                System.out.println("Element: " + element);
-//                System.out.println("Projected tuple: " + projectedTuple);
-//                if (element.equals(projectedTuple.toString())) {
-//                    System.out.println("Buffer contains projected tuple");
-//                    break;
-//                }
-//            }
 
 
             if (!bufferHasProjectedTuple(buffer, projectedTuple)) {
@@ -159,7 +157,7 @@ public class ProjectOperator extends Operator {
 
     @Override
     public void dump() {
-        reset();
+//        reset();
         Tuple tuple = getNextTuple();
         FileWriter pw = null;
         File file = new File("data/evaluation/data.csv");
