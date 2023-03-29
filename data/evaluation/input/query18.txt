@@ -1,0 +1,1 @@
+Q(x, SUM(x)) :- R(x, y, z), S(x, w, t)

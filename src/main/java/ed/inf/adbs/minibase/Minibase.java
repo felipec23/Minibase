@@ -994,6 +994,45 @@ public class Minibase {
             throw new RuntimeException(e);
         }
 
+        // Print all terms in query head:
+
+        List<Variable> queryVariables = query.getHead().getVariables();
+        System.out.println("Variables in query head: " + queryVariables);
+        SumAggregate sumAgg = query.getHead().getSumAggregate();
+
+        // Print query variables as a list:
+        System.out.println("Query variables: " + queryVariables.toArray());
+
+        // Assign query variables list to a new list:
+        List<Variable> queryVariablesList = new ArrayList<>(queryVariables);
+
+        // Print query variables list:
+        System.out.println("Query variables list: " + queryVariablesList);
+
+        // Print type of query variables list:
+        System.out.println("Type of query variables list: " + queryVariablesList.getClass());
+
+        // Convert query variables to string:
+        String queryVariablesString = queryVariablesList.toString();
+
+        // Print type of query variables string:
+        System.out.println("Type of query variables string: " + queryVariablesString.getClass());
+
+        // Print query variables string:
+        System.out.println("Query variables string: " + queryVariablesString);
+
+
+
+        // Print sum aggregate:
+        System.out.println("Sum aggregate: " + sumAgg);
+
+        // Product terms:
+        List<Term> productTerms = sumAgg.getProductTerms();
+        System.out.println("Product terms: " + productTerms);
+
+
+        System.out.println();
+
 
         Catalog catalog = Catalog.getInstance();
 

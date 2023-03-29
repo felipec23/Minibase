@@ -1,5 +1,6 @@
 package ed.inf.adbs.minibase.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Create a public class Tuple that stores X objects:
@@ -71,6 +72,15 @@ public class Tuple {
 
     public List<Term> getVariables() {
         return variables;
+    }
+
+    // Function to get all variables names in a tuple:
+    public List<String> getVariablesNames() {
+        List<String> variablesNames = new ArrayList<>();
+        for (Term variable : variables) {
+            variablesNames.add(variable.toString());
+        }
+        return variablesNames;
     }
 
 

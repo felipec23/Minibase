@@ -119,6 +119,20 @@ public class QueryPlanner {
 //            break;
         }
 
+        // Checking for any aggregation operation:
+        SumAggregate sumAgg = query.getHead().getSumAggregate();
+
+        if (sumAgg != null) {
+            System.out.println("Aggregation detected.");
+            // Create aggregation operator:
+            SumOperator aggregateOp = new SumOperator(root, sumAgg, query);
+            // Set the aggregation operator as the root:
+            root = aggregateOp;
+
+            // Aggregation operator does its own projection, so no need to do it again:
+            return root;
+        }
+
 
         // Apply projection operator:
         if (headVariables.equals(allTermsFromBody)) {
@@ -130,6 +144,8 @@ public class QueryPlanner {
             // Set the projection operator as the root:
             root = projectionOp;
         }
+
+
 
 
         // Return the root:
