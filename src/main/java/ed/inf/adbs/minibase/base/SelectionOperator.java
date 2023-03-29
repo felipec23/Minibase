@@ -80,32 +80,8 @@ public class SelectionOperator extends Operator{
     }
 
 
-    @Override
-    public void dump() {
-        System.out.println("Dumping selection operator");
-//        reset();
-        Tuple tuple = getNextTuple();
-        FileWriter pw = null;
-        File file = new File("data/evaluation/data.csv");
 
-        if (file.exists()) {
-            file.delete();
-        }
 
-        while (tuple != null) {
-            try {
-                pw = new FileWriter("data/evaluation/data.csv" , true);
-                pw.append(tuple.toString());
-                pw.append("\n");
-                pw.flush();
-                pw.close();
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            tuple = getNextTuple();
-        }
-    }
 
     @Override
     public boolean hasNext() {

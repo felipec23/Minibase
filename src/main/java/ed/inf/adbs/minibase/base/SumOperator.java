@@ -1,8 +1,10 @@
 package ed.inf.adbs.minibase.base;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class SumOperator extends Operator {
 
@@ -20,6 +22,8 @@ public class SumOperator extends Operator {
 
     private List<String> headVarsString;
 
+    private Catalog catalog;
+
     public SumOperator(Operator child, SumAggregate sumAggregate, Query query) {
         super(null);
         this.child = child;
@@ -28,6 +32,7 @@ public class SumOperator extends Operator {
         this.headVariables = query.getHead().getVariables();
         this.productTerms = sumAggregate.getProductTerms();
         this.headVarsString = setHeadVarsString();
+        this.catalog = Catalog.getInstance();
     }
 
     // Function to convert the head variables from variables to strings:
@@ -77,6 +82,9 @@ public class SumOperator extends Operator {
 
             // Print final sum:
             System.out.println("Final sum: " + sum);
+
+            // Write to file:
+            writeSingleResult();
         }
 
         // If it's a sum with group by:
@@ -132,6 +140,9 @@ public class SumOperator extends Operator {
 
             // Print the hashmap:
             System.out.println("HashMap: " + sumMap);
+
+            // Write the hashmap to a file:
+            writeSumMap(sumMap);
         }
 
 
@@ -140,9 +151,55 @@ public class SumOperator extends Operator {
 
     }
 
+    // Function to get catalog:
+
+
     // Function to write the result of the sum in a file:
     public void writeSingleResult() {
         // TODO
+        try {
+            String outputFileName = this.getCatalog().getOutputFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true));
+
+            writer.write(Integer.toString(sum));
+            writer.newLine();
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    // Function to write the sumMap to a file:
+    public void writeSumMap(LinkedHashMap<String, Integer> sumMap) {
+        // TODO
+        try {
+
+            // Create the writer:
+            String outputFileName = this.getCatalog().getOutputFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true));
+
+            // Using an iterator:
+            Iterator<Map.Entry<String, Integer>> it = sumMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Integer> pair = it.next();
+                writer.write(pair.getKey() + pair.getValue());
+
+                if (it.hasNext()) {
+                    writer.newLine();
+                }
+            }
+
+            writer.flush();
+            writer.close();
+            it.remove(); // avoids a ConcurrentModificationException
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -163,7 +220,7 @@ public class SumOperator extends Operator {
             Term term = tuple.getTuple(index);
 
             // Add the term as string to the mapKey, separated by a comma:
-            mapKey += term.toString() + ",";
+            mapKey += term.toString() + ", ";
 
         }
         return mapKey;

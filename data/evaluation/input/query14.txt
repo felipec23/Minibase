@@ -1,1 +1,1 @@
-Q(x, y, z, u, w, t) :- R(x, y, z), S(x, w, t)
+Q(x, y, z, w, t) :- R(x, y, z), S(x, w, t)

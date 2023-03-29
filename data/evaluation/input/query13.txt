@@ -1,1 +1,1 @@
-Q(b) :- R(1, b), S(b, c), T(d, c, e), d < 5, e != 0
+Q(b, x) :- R(b, 9, x), S(b, a, c), T(d, c), d < 6, x != 'ppls'

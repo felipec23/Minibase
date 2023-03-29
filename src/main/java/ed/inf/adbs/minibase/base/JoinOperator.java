@@ -200,8 +200,24 @@ public class JoinOperator extends Operator {
         // Iterate over the new join conditions:
         for (ComparisonAtom comparisonAtom : newJoinConditions) {
 
+            // Print the comparison atom:
+            System.out.println("Comparison atom: " + comparisonAtom);
+
+            // Print comparison atom indexes:
+            System.out.println("Comparison atom indexes: " + comparisonAtom.getIndexes());
+
             // Get the position of the left term:
-            int leftTermPosition = comparisonAtom.getIndexes().get(0);
+            //int leftTermPosition = comparisonAtom.getIndexes().get(0);
+            List<Term> variables = tupleLeft.getVariables();
+
+            System.out.println("Variable schema for the joined/left tuple: " + variables);
+
+            // To find 'c' in the joined/accumulative tuple, we need to find the position of 'c' in the first tuple:
+            //int leftTermPosition = variables.indexOf(comparisonAtom.getTerm1());
+
+            // We do the search from the end of the list, in case the variable is repeated in the tuple:
+            int leftTermPosition = variables.lastIndexOf(comparisonAtom.getTerm1());
+
 
             // Get the position of the right term:
             int rightTermPosition = comparisonAtom.getIndexes().get(1);
@@ -283,44 +299,6 @@ public class JoinOperator extends Operator {
         rightChild.reset();
     }
 
-//    @Override
-//    public void dump() {
-//        System.out.println("Join Operator");
-//        System.out.println("Left Child");
-//        leftChild.dump();
-//        System.out.println("Right Child");
-//        rightChild.dump();
-//        System.out.println("Join Predicate");
-//        for (ComparisonAtom atom : joinPredicate) {
-//            System.out.println(atom);
-//        }
-//    }
-    @Override
-    public void dump() {
-        System.out.println("Join Operator dumping");
-//        reset();
-        Tuple tuple = getNextTuple();
-        FileWriter pw = null;
-        File file = new File("data/evaluation/data.csv");
 
-        if (file.exists()) {
-            file.delete();
-        }
-
-        while (tuple != null) {
-            try {
-                System.out.println("Writing tuple to file: " + tuple.toString() + "");
-                pw = new FileWriter("data/evaluation/data.csv" , true);
-                pw.append(tuple.toString());
-                pw.append("\n");
-                pw.flush();
-                pw.close();
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            tuple = getNextTuple();
-        }
-    }
 
 }

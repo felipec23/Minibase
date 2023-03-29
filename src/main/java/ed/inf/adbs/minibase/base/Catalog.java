@@ -21,18 +21,33 @@ public class Catalog {
 
     private static Catalog instance = null;
 
+    private String inputFile;
+
+    private String outputFile;
 
 
-    private Catalog(String databaseDir) {
+
+
+
+    private Catalog() {
+//        this.databaseDir = databaseDir;
+//        this.relations = new ArrayList<>();
+////        Files directory is the database directory + "/files"
+//        this.filesDir = new File(databaseDir + "/files/");
+//        this.relations = parseSchema();
+    }
+
+
+    public void init(String databaseDir, String inputFile, String outputFile){
         this.databaseDir = databaseDir;
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
         this.relations = new ArrayList<>();
-//        Files directory is the database directory + "/files"
+        // Files directory is the database directory + "/files"
         this.filesDir = new File(databaseDir + "/files/");
         this.relations = parseSchema();
     }
 
-
-    
 
 
 //    Given a files directory, there should be a list of CSV files and a schema.txt file
@@ -43,6 +58,14 @@ public class Catalog {
 
 //    Create a function to parse the schema.txt file where each line is a relation/table
 //    Code:
+
+    public String getInputFile() {
+        return inputFile;
+    }
+
+    public String getOutputFile() {
+        return outputFile;
+    }
 
     public List<Relation> getRelations() {
         return relations;
@@ -111,7 +134,7 @@ public class Catalog {
 
     public static Catalog getInstance() {
         if (instance == null) {
-            instance = new Catalog("data/evaluation/db");
+            instance = new Catalog();
         }
         return instance;
     }

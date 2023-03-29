@@ -45,6 +45,22 @@ public class ScanOperator extends Operator{
         }
     }
 
+    //  Function to extract all the terms in the head of the query, including the product terms of the aggregate functions
+    public List<Term> extractTerms() {
+
+        List<Term> queryHead = new ArrayList<>();
+        SumAggregate sumAgg = query.getHead().getSumAggregate();
+
+        if (sumAgg != null) {
+            queryHead.addAll(sumAgg.getProductTerms());
+        }
+
+        queryHead.addAll(query.getHead().getVariables());
+
+        return queryHead;
+
+    }
+
     //    Function to get relation name:
 
     @Override
@@ -262,6 +278,7 @@ public class ScanOperator extends Operator{
             // Get variables for the tuple
             tuple.setVariables(getTermsOfRelationalAtom());
             System.out.println("Tuple to send from scan: " + tuple);
+            System.out.println("Tuple variables: " + tuple.getVariables());
             return tuple;
 
         } catch (IOException e) {
@@ -302,31 +319,7 @@ public class ScanOperator extends Operator{
     }
 
     //    Dump the scan operator
-    @Override
-    public void dump() {
-        reset();
-        Tuple tuple = getNextTuple();
-        FileWriter pw = null;
-        File file = new File("data/evaluation/data.csv");
 
-        if (file.exists()) {
-            file.delete();
-        }
-
-        while (tuple != null) {
-            try {
-                pw = new FileWriter("data/evaluation/data.csv" , true);
-                pw.append(tuple.toString());
-                pw.append("\n");
-                pw.flush();
-                pw.close();
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            tuple = getNextTuple();
-        }
-    }
 
 
 
