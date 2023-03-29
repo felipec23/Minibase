@@ -31,6 +31,10 @@ public class Catalog {
         this.relations = parseSchema();
     }
 
+
+    
+
+
 //    Given a files directory, there should be a list of CSV files and a schema.txt file
 //    The schema.txt file, each row is a table
 //    First column is the table name, and the rest of the columns are the column names

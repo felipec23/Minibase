@@ -18,6 +18,8 @@ public class SumOperator extends Operator {
 
     private List<Term> productTerms;
 
+    private List<String> headVarsString;
+
     public SumOperator(Operator child, SumAggregate sumAggregate, Query query) {
         super(null);
         this.child = child;
@@ -25,6 +27,16 @@ public class SumOperator extends Operator {
         this.sumAggregate = sumAggregate;
         this.headVariables = query.getHead().getVariables();
         this.productTerms = sumAggregate.getProductTerms();
+        this.headVarsString = setHeadVarsString();
+    }
+
+    // Function to convert the head variables from variables to strings:
+    private List<String> setHeadVarsString() {
+        List<String> headVarsString = new ArrayList<>();
+        for (int i = 0; i < headVariables.size(); i++) {
+            headVarsString.add(headVariables.get(i).toString());
+        }
+        return headVarsString;
     }
 
     @Override
@@ -33,9 +45,9 @@ public class SumOperator extends Operator {
         sum = 0;
 
         // If it's a simple sum:
-        if (headVariables.size() == 0 && productTerms.size() == 1) {
+        if (headVariables.size() == 0) {
 
-            // Example: SELECT SUM(A) FROM R;
+            // Here, we just return 1 number. Example: Q(SUM(1)), Q(SUM(x)), Q(SUM(x*x))
 
             // Check it productTerms is a constant, that is, 1:
             if (productTerms.get(0) instanceof Constant) {
@@ -46,29 +58,17 @@ public class SumOperator extends Operator {
             }
 
             else {
-                // If it's a variable:
+                // If the product/s term/s is/are a variable:
                 while ((tuple = child.getNextTuple()) != null) {
                     System.out.println("TUPLERECEIVED: " + tuple);
-                    List<Term> tupleVariables = tuple.getVariables();
 
-                    // Find where the product term is in the tuple
-                    int index = 0;
-                    for (int i = 0; i < tupleVariables.size(); i++) {
-                        if (tupleVariables.get(i).equals(productTerms.get(0))) {
-                            index = i;
-                        }
-                    }
-                    Term termTuple = tuple.getTuple(index);
-
-                    // Cast term as IntegerConstant
-                    IntegerConstant integer = (IntegerConstant) termTuple;
+                    int sumOfProductTerms = getSumOfProductTerms(tuple);
 
                     // Cast the term to an integer and add it to the sum:
                     //int integer = Integer.parseInt(termTuple.toString());
-                    sum += integer.getValue();
+                    sum += sumOfProductTerms;
 
-                    // Print both:
-                    System.out.println("integer: " + integer);
+                    // Print:
                     System.out.println("Sum: " + sum);
 
 
@@ -80,6 +80,8 @@ public class SumOperator extends Operator {
         }
 
         // If it's a sum with group by:
+
+        // Examples: Q(x, SUM(x), Q(SUM(x*x))
         else {
             // Create a hashmap with the group by variables as keys and the sum as values:
             LinkedHashMap<String, Integer> sumMap = new LinkedHashMap<>();
@@ -90,40 +92,13 @@ public class SumOperator extends Operator {
 
                 System.out.println("tuplereceived: " + tuple);
 
-                List<String> tupleVariablesNames = tuple.getVariablesNames();
-
-
-                // Access where the head variables are in the tuple:
-                // Iterate through the head variables:
-
-                // Create a list of terms to be used as a key in the hashmap:
-                String mapKey = "";
-                for (int i = 0; i < headVariables.size(); i++) {
-                    // Find where the head variable is in the tuple:
-
-                    // Get current head variable and cast as Term:
-                    //Term headVariable = (Term) headVariables.get(i);
-                    String stringTerm = headVariables.get(i).toString();
-
-//                    System.out.println("headTerm: " + headTerm);
-//
-//                    // Print type of headTerm:
-//                    System.out.println("headTerm type: " + headTerm.getClass());
-
-                    int index = tupleVariablesNames.indexOf(stringTerm);
-                    // Get the term in that index:
-                    Term term = tuple.getTuple(index);
-                    // Add the term as string to the mapKey, separated by a comma:
-
-                    mapKey += term.toString() + ",";
-                }
-
+                // Create a string to be used as a key in the hashmap:
+                String mapKey = createMapKey(tuple);
 
                 System.out.println("mapKey: " + mapKey);
 
                 // Print the size of productTerms
                 System.out.println("productTerms size: " + productTerms.size());
-
 
 
                 // If the tuple is already in the hashmap:
@@ -132,24 +107,8 @@ public class SumOperator extends Operator {
                     int sumOfTuple = sumMap.get(mapKey);
 
                     // Get the sum of the product terms:
-                    int sumOfProductTerms = 0;
-                    for (Term term : productTerms) {
-                        if (term instanceof Constant) {
-                            // Add the constant (1) to the sum of the product terms:
-                            sumOfProductTerms += Integer.parseInt(term.toString());
-                        }
-                        else {
-                            int index = 0;
-                            for (int i = 0; i < tuple.getVariables().size(); i++) {
-                                if (tuple.getVariables().get(i).equals(term)) {
-                                    index = i;
-                                }
-                            }
-                            //sumOfProductTerms += Integer.parseInt(tuple.getTuple(index).toString());
-                            int value = ((IntegerConstant) tuple.getTuple(index)).getValue();
-                            sumOfProductTerms += value;
-                        }
-                    }
+                    // Call the function:
+                    int sumOfProductTerms = getSumOfProductTerms(tuple);
 
                     // Add the sum of the product terms to the sum of the tuple:
                     sumOfTuple += sumOfProductTerms;
@@ -162,22 +121,9 @@ public class SumOperator extends Operator {
                 else {
                     // Get the sum of the product terms:
                     int sumOfProductTerms = 0;
-                    for (Term term : productTerms) {
-                        if (term instanceof Constant) {
-                            sumOfProductTerms += Integer.parseInt(term.toString());
-                        }
-                        else {
-                            int index = 0;
-                            for (int i = 0; i < tuple.getVariables().size(); i++) {
-                                if (tuple.getVariables().get(i).equals(term)) {
-                                    index = i;
-                                }
-                            }
-                            int value = ((IntegerConstant) tuple.getTuple(index)).getValue();
-                            sumOfProductTerms += value;
 
-                        }
-                    }
+                    // Call the function:
+                    sumOfProductTerms = getSumOfProductTerms(tuple);
 
                     // Put the tuple and the sum of the product terms in the hashmap:
                     sumMap.put(mapKey, sumOfProductTerms);
@@ -190,6 +136,93 @@ public class SumOperator extends Operator {
 
 
 
+
+
+    }
+
+    // Function to write the result of the sum in a file:
+    public void writeSingleResult() {
+        // TODO
+
+    }
+
+
+    // Function to create a string to be used as a key in the hashmap:
+    public String createMapKey(Tuple tuple) {
+        String mapKey = "";
+        for (int i = 0; i < headVarsString.size(); i++) {
+            // Find where the head variable is in the tuple:
+
+            // Get current head variable
+            String stringTerm = headVarsString.get(i);
+
+            // See where the head variable is in the tuple:
+            int index = tuple.getVariablesNames().indexOf(stringTerm);
+
+            // Get the term in that index:
+            Term term = tuple.getTuple(index);
+
+            // Add the term as string to the mapKey, separated by a comma:
+            mapKey += term.toString() + ",";
+
+        }
+        return mapKey;
+    }
+
+
+    // Function to get the sum of the product terms:
+    public int getSumOfProductTerms(Tuple tuple) {
+
+
+        // Special case if there are more than one product term:
+        if (productTerms.size() > 1) {
+
+            // If the product terms are bigger than 1, then we multiply them:
+            int sumOfProductTerms = 1;
+
+            for (Term term : productTerms) {
+                if (term instanceof Constant) {
+                    sumOfProductTerms *= Integer.parseInt(term.toString());
+                }
+                else {
+                    int index = 0;
+                    for (int i = 0; i < tuple.getVariables().size(); i++) {
+                        if (tuple.getVariables().get(i).equals(term)) {
+                            index = i;
+                        }
+                    }
+
+                    int value = ((IntegerConstant) tuple.getTuple(index)).getValue();
+                    sumOfProductTerms *= value;
+
+                }
+            }
+
+            return sumOfProductTerms;
+        }
+
+        // If there is only one product term:
+        else {
+            int sumOfProductTerms = 0;
+            for (Term term : productTerms) {
+                if (term instanceof Constant) {
+                    sumOfProductTerms += Integer.parseInt(term.toString());
+                }
+                else {
+                    int index = 0;
+                    for (int i = 0; i < tuple.getVariables().size(); i++) {
+                        if (tuple.getVariables().get(i).equals(term)) {
+                            index = i;
+                        }
+                    }
+                    int value = ((IntegerConstant) tuple.getTuple(index)).getValue();
+                    sumOfProductTerms += value;
+
+                }
+            }
+
+            return sumOfProductTerms;
+        }
 
 
     }
