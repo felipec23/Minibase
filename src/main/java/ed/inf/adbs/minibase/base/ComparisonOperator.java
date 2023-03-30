@@ -4,28 +4,23 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+/**
+ * This class abstracts the concept of comparison operator and should be extended for each specific
+ * comparison operator. It defines the fields all the comparison operators need and provide their
+ * getters and setters.
+ */
+
 public enum ComparisonOperator {
     EQ("=") {
 
         @Override
         public boolean evaluate(Term left, Term right) {
-//            System.out.println("left: " + left);
-//            System.out.println("right: " + right);
-////            Print operator:
-//            System.out.println("op: " + "=");
-
-////            Print type of each and say it:
-//            System.out.println("left type: " + left.getClass());
-//            System.out.println("right type: " + right.getClass());
-
             return left.equals(right);
         }
     },
     NEQ("!="){
         @Override
         public boolean evaluate(Term left, Term right) {
-//            System.out.println("left: " + left);
-//            System.out.println("right: " + right);
             return !left.equals(right);
         }
     },
@@ -79,9 +74,6 @@ public enum ComparisonOperator {
     }
 
     public abstract boolean evaluate(Term left, Term right);
-
-
-
 
     public static ComparisonOperator fromString(String s) throws NoSuchElementException {
         return Arrays.stream(values())

@@ -7,7 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * This class plans the query and adds the needed operators, according to the specifications
+ * of the query. In this class we also find the different conditions, both for selection or for
+ * joining. The root variables is assigned as long as the query is being checked.
+ */
 public class QueryPlanner {
 
     private Operator root = null;
@@ -24,11 +28,6 @@ public class QueryPlanner {
         this.originalQuery = originalQuery;
         this.relTermsToDelete = getDeletableRelTerms(originalQuery);
         this.query = getSimpleQuery(originalQuery);
-
-        System.out.println("This Original query: " + this.originalQuery);
-
-        // Print query:
-        System.out.println("Query: " + query);
 
         // Array to save all join terms:
         List<Term> processedTerms = new ArrayList<>();
@@ -51,7 +50,6 @@ public class QueryPlanner {
         // Get all terms from the query:
         List<String> allTermsFromBody = getRelationalVariablesFromQuery(originalQuery);
 
-
         // Get first atom
         RelationalAtom relationalAtom1 = relationalAtoms.get(0);
 
@@ -69,18 +67,16 @@ public class QueryPlanner {
         // Find if there's need for a selection operator
         List<ComparisonAtom> comparisonAtomsBetweenAtom1 = getComparisonAtomsBetweenAtom(relAtomName1, allComparisonAtoms);
 
-        System.out.println("Comparison atoms between atom 1 here: " + comparisonAtomsBetweenAtom1);
-
         // If there are comparison atoms between the first atom, create selection operator:
         if (comparisonAtomsBetweenAtom1.size() > 0) {
-            System.out.println("Comparison atoms between atom 1 detected: " + comparisonAtomsBetweenAtom1);
+
             // Create selection operator for the first atom:
             SelectionOperator selectionOp1 = new SelectionOperator(scanOp1, comparisonAtomsBetweenAtom1, relAtomName1);
             // Set the selection operator as the root:
             root = selectionOp1;
+
         } else {
 
-            System.out.println("No comparison atoms between atom 1 detected.");
             // Set the scan operator as the root:
             root = scanOp1;
         }
@@ -92,7 +88,6 @@ public class QueryPlanner {
         // Iterate for the rest of the relational atoms:
         for (int i = 1; i < relationalAtoms.size(); i++) {
 
-            System.out.println("Processing relational atom: " + relationalAtoms.get(i).getName());
             // Get the relational atom:
             RelationalAtom relationalAtom2 = relationalAtoms.get(i);
             // Get the name of the relational atom:
@@ -108,7 +103,6 @@ public class QueryPlanner {
             // If there are comparison atoms between the second atom, create selection operator:
             if (comparisonAtomsBetweenAtom2.size() > 0) {
 
-                System.out.println("Comparison atoms between atom 2: " + comparisonAtomsBetweenAtom2);
                 // Create selection operator for the second atom:
                 SelectionOperator selectionOp2 = new SelectionOperator(scanOp2, comparisonAtomsBetweenAtom2, relAtomName2);
                 // Set the selection operator as the second operator:
@@ -120,10 +114,7 @@ public class QueryPlanner {
             // Find the join conditions between the two atoms:
             joinConditions = findJoinCondition(relAtomName1, relAtomName2, allComparisonAtoms);
 
-            System.out.println("Join conditions detected: " + joinConditions);
-
             // Make a copy of relAtomName2:
-//            String relAtomName2Old = relAtomName2;
 
             // Create join operator:
             JoinOperator joinOp = new JoinOperator(root, op2, joinConditions);
@@ -132,14 +123,14 @@ public class QueryPlanner {
             // Set the second atom as the first atom, for the next iteration:
             relAtomName1 = relAtomName2;
 
-//            break;
+
         }
 
         // Checking for any aggregation operation:
         SumAggregate sumAgg = query.getHead().getSumAggregate();
 
         if (sumAgg != null) {
-            System.out.println("Aggregation detected.");
+
             // Create aggregation operator:
             SumOperator aggregateOp = new SumOperator(root, sumAgg, query);
             // Set the aggregation operator as the root:
@@ -152,9 +143,9 @@ public class QueryPlanner {
 
         // Apply projection operator:
         if (headVariables.equals(allTermsFromBody)) {
-            System.out.println("All head variables are in the body, no need for projection.");
+            // System.out.println("All head variables are in the body, no need for projection.");
         } else {
-            System.out.println("Applying projection operator.");
+            // System.out.println("Applying projection operator.");
             // Create projection operator:
             ProjectOperator projectionOp = new ProjectOperator(root, query);
             // Set the projection operator as the root:
@@ -169,7 +160,13 @@ public class QueryPlanner {
 
     }
 
-
+    /**
+     * This method removes some terms from the query and returns the string parsed back into a Query object.
+     * The idea here is to not use those variables that won't be used by any operator a long the process. This is
+     * part of the query optimization for Task 3.
+     * @param originalQuery
+     * @return simpleQuery: returns a more simplified version of the query, given the terms that can be deleted list.
+     */
     public Query getSimpleQuery(Query originalQuery){
 
 
@@ -189,6 +186,16 @@ public class QueryPlanner {
 
     }
 
+    /**
+     * This method finds out which terms can be avoided in order to optimize the query evaluation. First, we add
+     * all the variables in the head, as well as the product terms. Then, from the body, we add the left term of
+     * all the comparison atoms. We later add all constants that appear in the relational atoms, and store in a
+     * HashMap how many times appears each term (in relational atoms). Those terms with 2 or more appearances
+     * represent a join condition, so they can't be removed. At the end, the variables that might be removed
+     * are the ones with a frequency of 1.
+     * @param query receives the query object/parsed.
+     * @return list of terms that might be deleted.
+     */
     public List<String> getDeletableRelTerms(Query query) {
 
 
@@ -256,7 +263,7 @@ public class QueryPlanner {
                 queryTerms.add(term);
             }
             else {
-                System.out.println("Term with frequency of one: " + term + " Frequency: " + termFrequency.get(term));
+
                 if (!queryTerms.contains(term)) {
                     termsDeletable.add(term);
                 }
@@ -271,16 +278,16 @@ public class QueryPlanner {
             }
         }
 
-        // Print possible terms to be deleted:
-        System.out.println("Terms to be deleted: " + termsDeletable);
 
         return termsDeletable;
 
     }
 
-
-
-    // Function to get relational variables from the query:
+    /**
+     * Function to fetch the relational variables in a query.
+     * @param query
+     * @return list of relational variables, as string.
+     */
     public static List<String> getRelationalVariablesFromQuery(Query query) {
 
         // Create list for saving the relational variables:
@@ -304,7 +311,14 @@ public class QueryPlanner {
 
     }
 
-
+    /**
+     * Here we take advantage of the comparison atoms types. We want to find the filters/selections that apply to
+     * only one atom. For this, we iterate over each comparison atom and filter those called "between atom" (for example
+     * y = 5), or "implicit" [x, 5, z].
+     * @param relAtomName
+     * @param allComparisonAtoms
+     * @return list of comparison atoms that apply only to the given relational atom
+     */
     // Function to get the comparison atoms that are between the first atom
     public static List<ComparisonAtom> getComparisonAtomsBetweenAtom(String relAtomName, List<ComparisonAtom> allComparisonAtoms) {
 
@@ -325,7 +339,14 @@ public class QueryPlanner {
 
     }
 
-
+    /**
+     * Now, we need to find the join conditions. For this purpose we also fetch two types of comparison atoms:
+     * "equi-join" R[x, y], S[x, z] and "different atoms" R[x, y], S[u, v], x < v. These two represent join conditions.
+     * @param relAtom1Name
+     * @param relAtom2Name
+     * @param comparisonAtoms
+     * @return list of join conditions for a given pair of relational atoms
+     */
     public static List<ComparisonAtom> findJoinCondition(String relAtom1Name, String relAtom2Name, List<ComparisonAtom>comparisonAtoms){
 
         // Create list for saving the relational atoms that have equi-join conditions:
@@ -349,6 +370,12 @@ public class QueryPlanner {
 
     }
 
+    /**
+     * Return the relational atoms in a query
+     * @param query
+     * @return list of relational atoms
+     */
+
     public List<RelationalAtom> getRelationalAtomsFromQuery(Query query) {
         List<RelationalAtom> relationalAtoms = new ArrayList<>();
         for (Atom atom : query.getBody()) {
@@ -362,6 +389,15 @@ public class QueryPlanner {
     }
 
 
+    /**
+     * This function creates all the possible comparisons that appear in a query. The idea is to have both
+     * comparison and join conditions in one variable. For this, we call some of the previous functions defined before.
+     * The idea is to get the implicit and equi-join conditions, too. After achieving this, we create a map that
+     * tracks where each variable (x, y, z) appears (that is, in relation R, S...) and the index (0, for X, for the
+     * previous example). With this information, we can now map where (in which relations) each comparison atom has influence.
+     * @param query
+     * @return list of all possible comparison atoms in the query.
+     */
     public List<ComparisonAtom>  analyzeConditions(Query query){
         // Get relational atoms from query:
         List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
@@ -446,29 +482,7 @@ public class QueryPlanner {
 
         // Add the relational atoms with constants to the list of comparison atoms:
         comparisonAtoms.addAll(relationalAtomsWithConstants);
-
-        // Add the relational atoms with equi-join conditions ONLY if there's no a default comparison that uses the same variable:
-//        for (ComparisonAtom equiJoin : relationalAtomsWithEquiJoinConditions) {
-//            boolean add = true;
-//            for (ComparisonAtom comparisonAtom : comparisonAtoms) {
-//                if (comparisonAtom.getTerm1().equals(equiJoin.getTerm1())) {
-//                    add = false;
-//                }
-//            }
-//            if (add) {
-//                comparisonAtoms.add(equiJoin);
-//            }
-//        }
-
         comparisonAtoms.addAll(relationalAtomsWithEquiJoinConditions);
-
-        // Iterate over comparison atoms and print them and their type and their relation names:
-        for (ComparisonAtom comparisonAtom : comparisonAtoms) {
-            System.out.println("Comparison atom: " + comparisonAtom);
-            System.out.println("Type: " + comparisonAtom.getType());
-            System.out.println("Relation names: " + comparisonAtom.getRelationsNames());
-            System.out.println("Index: " + comparisonAtom.getIndexes());
-        }
 
 
         return comparisonAtoms;
@@ -476,6 +490,12 @@ public class QueryPlanner {
 
     }
 
+    /**
+     * Return the index of a term inside a relational atom.
+     * @param term
+     * @param relationalAtom
+     * @return index (position)
+     */
     public static Integer getTermIndex(Term term, RelationalAtom relationalAtom){
         // Get the index of the term in the relational atom:
         Integer index = -1;
@@ -487,6 +507,11 @@ public class QueryPlanner {
         return index;
     }
 
+    /**
+     * Function to create a mapping of where each variable is present and the index it has on each relation.
+     * @param relationalAtoms
+     * @return map object.
+     */
     public Map<String, Map<String, Integer>> createMap(List<RelationalAtom> relationalAtoms) {
         Map<String, Map<String, Integer>> myMap = new HashMap<>();
 
@@ -537,7 +562,11 @@ public class QueryPlanner {
     }
 
 
-
+    /**
+     * Get all comparison atoms of a query.
+     * @param query
+     * @return list of comparison atoms.
+     */
     public static List<ComparisonAtom> getComparisonAtomsFromQuery(Query query) {
         List<ComparisonAtom> comparisonAtoms = new ArrayList<>();
         for (Atom atom : query.getBody()) {
@@ -549,6 +578,15 @@ public class QueryPlanner {
         return comparisonAtoms;
     }
 
+    /**
+     * Functino for detecting implicit conditions in a query. We iterate over each term and check if it's
+     * a Constant object. If it is, we create a new Comparison Atom with the equal operator. Then, we assign
+     * the implicit type, as well as add the relation name/s where this specific filter is applying. We also
+     * define the indexes of the atom. In the indexes we store the position of the comparison variable in the
+     * actual tuple.
+     * @param relationalAtoms
+     * @return list of implicit comparison atoms.
+     */
     public static List<ComparisonAtom> detectImplicitConditions(List<RelationalAtom> relationalAtoms ) {
 
         // Detect implicit conditions, that is, if there is a relational atom with a constant:
@@ -588,6 +626,13 @@ public class QueryPlanner {
     }
 
 
+    /**
+     * This function detectes equi-join conditions. We iterate over each term of all the comparison atoms in order
+     * to find common terms between different atoms. When we find them, we also create a new comparison atom, and
+     * as we did before, we also store the relation name/s and the indexes.
+     * @param relationalAtoms
+     * @return list of all equi-join conditions.
+     */
 
     public static List<ComparisonAtom> detectEquijoinConditions(List<RelationalAtom> relationalAtoms){
         // Find if two relational atoms have the same variable:

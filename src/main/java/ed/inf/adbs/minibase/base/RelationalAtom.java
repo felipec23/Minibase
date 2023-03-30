@@ -23,16 +23,6 @@ public class RelationalAtom extends Atom {
         return terms;
     }
 
-//    Get terms as list of strings:
-    public List<String> getTermsAsString() {
-
-//        Without using map:
-        List<String> termsAsString = new ArrayList<>();
-        for (Term term : terms) {
-            termsAsString.add(term.toString());
-        }
-        return termsAsString;
-    }
 
     @Override
     public String toString() {

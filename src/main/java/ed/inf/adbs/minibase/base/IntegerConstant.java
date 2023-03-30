@@ -16,7 +16,6 @@ public class IntegerConstant extends Constant {
         return value.toString();
     }
 
-//    Function to check if two IntegerConstants are equal:
 
 
 

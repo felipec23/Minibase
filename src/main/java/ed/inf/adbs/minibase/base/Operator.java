@@ -26,7 +26,10 @@ public abstract class Operator {
     public void close() {
     }
 
-
+    /**
+     * This method is used to dump the tuples of all the operators, except the SumOperator.
+     * This is called when running "root.dump()". The output file is fetched from the catalog.
+     */
     public void dump() {
 
         Tuple tuple = getNextTuple();
@@ -54,12 +57,6 @@ public abstract class Operator {
 
     }
 
-    public void dump(String fileName) {
-    }
-
-    public String getRelationName() {
-        return null;
-    }
 
     public List<String> getSchemaOfRelation() {
         return null;

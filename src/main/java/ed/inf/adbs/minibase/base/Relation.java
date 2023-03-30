@@ -1,6 +1,9 @@
 package ed.inf.adbs.minibase.base;
 import java.util.List;
 
+/**
+ * Class created for the purpose of storing the name, schema and filepath of a table/relation.
+ */
 public class Relation {
 
     private String name;

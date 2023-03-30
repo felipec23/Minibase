@@ -1,21 +1,23 @@
 package ed.inf.adbs.minibase.base;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+/**
+ * This class receives the tuples from child and matches the tuple with the query variables.
+ * @child the child operator
+ * @query: the query parsed from the input file. Used to get the head variables.
+ * @variables: the variables in the head of the query.
+ * @buffer: the buffer to store the tuples that have already been projected.
+ * @catalog: the catalog of the database.
+ * @return: the projected tuples.
+ *
+ */
 public class ProjectOperator extends Operator {
 
     private Operator child;
     private List<Variable> variables;
-    //    private Set<List<Term>> buffer;
-//    private HashSet<List<Term>> buffer;
     private List<String> buffer;
     private Query query;
-
     private Catalog catalog;
 
     public ProjectOperator(Operator child, Query query) {
@@ -23,13 +25,8 @@ public class ProjectOperator extends Operator {
         this.child = child;
         this.query = query;
         this.variables = getHeadVariables();
-//        this.buffer = new HashSet<>();
         this.buffer = new ArrayList<>();
         this.catalog = Catalog.getInstance();
-    }
-
-    public ProjectOperator(Query query) {
-        super(query);
     }
 
     @Override
@@ -38,13 +35,10 @@ public class ProjectOperator extends Operator {
     }
 
 
-
-//    @Override
-//    public List<String> getSchema() {
-//        return variables;
-//    }
-
-    //    Function to extract head from query, and get the variables from the head:
+    /**
+     * Function to extract head from query, and get the variables from the head.
+     * @return list of variables in the query head.
+     */
     public List<Variable> getHeadVariables() {
         List<Variable> queryHead = new ArrayList<>();
         for (Variable variable : query.getHead().getVariables()) {
@@ -53,31 +47,22 @@ public class ProjectOperator extends Operator {
         return queryHead;
     }
 
-//    Function to get the schema
-
-
 
     @Override
     public void open() {
         child.open();
     }
 
-//    Function to check if projected tuple is in buffer:
 
 
-    public boolean tupleIsInBuffer(Set<List<Term>> outerList, List innerList) {
-        boolean isSubset = false;
-        for (List<Term> list : outerList) {
-            if (list.containsAll(innerList)) {
-                isSubset = true;
-                break;
-            }
-        }
 
-        return isSubset;
-    }
 
-    //    Function to check if buffer has projected tuple:
+    /**
+     * Function to check if buffer has projected tuple:
+     * @param buffer
+     * @param projectedTuple
+     * @return boolean indicates whether the tuple is already in the buffer.
+     */
     public boolean bufferHasProjectedTuple(List<String> buffer, List<Term> projectedTuple) {
         boolean hasTuple = false;
         for (String element : buffer) {
@@ -90,12 +75,17 @@ public class ProjectOperator extends Operator {
     }
 
 
-
+    /**
+     * This calls the next tuple from the child operator and projects the tuple. We know which value corresponds
+     * to which variable given that we store alongside the tuple, the variables that are present in the tuple.
+     * This allows an easy match between the variable and the value. At the end, we check if the projected tuple
+     * is already in the buffer. If it is, we discard it. If it is not, we add it to the buffer and return it.
+     * @return tuple
+     */
     @Override
     public Tuple getNextTuple() {
         while (true) {
             Tuple tuple = child.getNextTuple();
-            System.out.println("Tuple received in Projection: " + tuple);
             if (tuple == null) {
                 return null;
             }
@@ -103,23 +93,14 @@ public class ProjectOperator extends Operator {
             List<Term> projectedTuple = new ArrayList<>();
 
             for (Variable variable : variables) {
-//                Print variable as string:
-                System.out.println("Variable: " + variable.toString());
-//                Get index of variable in the atom:
-//                Get relation of child:
-
 
                 // Read variables from tuple as string:
                 List<String> variablesTupleString = tuple.getVariablesAsListOfStrings();
-                System.out.println("Variables in tuple: " + variablesTupleString);
 
                 // Iterate over variables in tuple:
                 Integer index = 0;
                 for (String term : variablesTupleString) {
-                    System.out.println("Term: " + term);
-                    System.out.println("Variable: " + variable);
                     if (term.equals(variable.toString())) {
-                        System.out.println("Variable found in tuple");
                         projectedTuple.add(tuple.getTuple(index));
                         break;
                     }
@@ -127,20 +108,16 @@ public class ProjectOperator extends Operator {
                     index++;
                 }
 
-
             }
 
 
             if (!bufferHasProjectedTuple(buffer, projectedTuple)) {
-                System.out.println("Buffer does not contain projected tuple");
-//                buffer.add(projectedTuple);
-                buffer.add(projectedTuple.toString());
-//                System.out.println("Buffer: " + buffer);
-//                Create a new tuple:
-                Tuple newTuple = new Tuple(projectedTuple.toArray(new Term[projectedTuple.size()]));
-                System.out.println("Projection: " + newTuple);
-                return newTuple;
 
+                buffer.add(projectedTuple.toString());
+
+                // Create a new tuple:
+                Tuple newTuple = new Tuple(projectedTuple.toArray(new Term[projectedTuple.size()]));
+                return newTuple;
 
             }
         }

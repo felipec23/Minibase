@@ -49,6 +49,7 @@ public class Minibase {
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) throws IOException {
         // TODO: add your implementation
 
+        // Create a new instance of the Catalog class:
         Catalog catalog = Catalog.getInstance();
         catalog.init(databaseDir, inputFile, outputFile);
 
@@ -57,7 +58,6 @@ public class Minibase {
         try {
             // Parse the query:
             query = QueryParser.parse(Paths.get(inputFile));
-
 
         }
 
@@ -98,18 +98,12 @@ public class Minibase {
 
         System.out.println();
 
-
+        // Create a new instance of the QueryPlanner class:
         QueryPlanner queryPlanner = new QueryPlanner();
         Operator root = queryPlanner.plan(query);
 
+        // Write query result to file:
         root.dump();
-
-        // Print
-
-        System.out.println("Query plan: " + root);
-
-
-
 
 
     }

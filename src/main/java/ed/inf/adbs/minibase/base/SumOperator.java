@@ -6,6 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Operator for executing the sum operations.
+ */
 public class SumOperator extends Operator {
 
     private int sum;
@@ -35,7 +38,10 @@ public class SumOperator extends Operator {
         this.catalog = Catalog.getInstance();
     }
 
-    // Function to convert the head variables from variables to strings:
+    /**
+     * Function to convert the head variables from variables to strings
+     * @return list of strings
+     */
     private List<String> setHeadVarsString() {
         List<String> headVarsString = new ArrayList<>();
         for (int i = 0; i < headVariables.size(); i++) {
@@ -44,6 +50,12 @@ public class SumOperator extends Operator {
         return headVarsString;
     }
 
+    /**
+     * This dump() overwrites the dump() operator method. The reason is that this operator has to wait
+     * for all tuples from children to give an output. Here, we write based on the output. If the output
+     * is just one number of it's a table with group-by variables. We implement an iterator and a buffered
+     * writer for maximum efficiency and for not overloading the memory when reading/processing big files.
+     */
     @Override
     public void dump() {
         Tuple tuple = null;
@@ -65,7 +77,6 @@ public class SumOperator extends Operator {
             else {
                 // If the product/s term/s is/are a variable:
                 while ((tuple = child.getNextTuple()) != null) {
-                    System.out.println("TUPLERECEIVED: " + tuple);
 
                     int sumOfProductTerms = getSumOfProductTerms(tuple);
 
@@ -73,15 +84,10 @@ public class SumOperator extends Operator {
                     //int integer = Integer.parseInt(termTuple.toString());
                     sum += sumOfProductTerms;
 
-                    // Print:
-                    System.out.println("Sum: " + sum);
 
 
                 }
             }
-
-            // Print final sum:
-            System.out.println("Final sum: " + sum);
 
             // Write to file:
             writeSingleResult();
@@ -98,15 +104,8 @@ public class SumOperator extends Operator {
             while ((tuple = child.getNextTuple()) != null) {
                 // Print the tuple:
 
-                System.out.println("tuplereceived: " + tuple);
-
                 // Create a string to be used as a key in the hashmap:
                 String mapKey = createMapKey(tuple);
-
-                System.out.println("mapKey: " + mapKey);
-
-                // Print the size of productTerms
-                System.out.println("productTerms size: " + productTerms.size());
 
 
                 // If the tuple is already in the hashmap:
@@ -138,9 +137,6 @@ public class SumOperator extends Operator {
                 }
             }
 
-            // Print the hashmap:
-            System.out.println("HashMap: " + sumMap);
-
             // Write the hashmap to a file:
             writeSumMap(sumMap);
         }
@@ -151,12 +147,12 @@ public class SumOperator extends Operator {
 
     }
 
-    // Function to get catalog:
 
-
-    // Function to write the result of the sum in a file:
+    /**
+     * Function to write the result of the sum in a file, the file is fetched from the catalog
+     */
     public void writeSingleResult() {
-        // TODO
+
         try {
             String outputFileName = this.getCatalog().getOutputFile();
             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true));
@@ -172,7 +168,10 @@ public class SumOperator extends Operator {
 
     }
 
-    // Function to write the sumMap to a file:
+    /**
+     * Function to write a table, result of a group-by operator, into a file.
+     * @param sumMap
+     */
     public void writeSumMap(LinkedHashMap<String, Integer> sumMap) {
         // TODO
         try {
@@ -204,7 +203,13 @@ public class SumOperator extends Operator {
     }
 
 
-    // Function to create a string to be used as a key in the hashmap:
+    /**
+     * Given a tuple, we extract the values that are required to be in the
+     * head, and create a key with them. It's already separated by commas, so
+     * we don't have to further process the key when writing into the file.
+     * @param tuple
+     * @return
+     */
     public String createMapKey(Tuple tuple) {
         String mapKey = "";
         for (int i = 0; i < headVarsString.size(); i++) {
@@ -227,7 +232,12 @@ public class SumOperator extends Operator {
     }
 
 
-    // Function to get the sum of the product terms:
+    /**
+     * Function to get the sum of the product of the terms. It works for all the possible cases, whether
+     * there's one or more product terms, or if there's or not head variables.
+     * @param tuple
+     * @return
+     */
     public int getSumOfProductTerms(Tuple tuple) {
 
 

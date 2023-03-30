@@ -14,6 +14,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/*
+Database Catalog
+Description: This class is responsible for parsing the schema.txt file and creating a list of relations.
+A Relation object is created for each table in the schema.txt file. The Relation object contains the
+name of the table, the list of attributes, and the list of types of the attributes.
+In the catalog there's also the path for the different directories used in the database. The instance
+can only be created once, and it's a singleton.
+
+@params:
+    relations: List of relations in the database
+    databaseDir: Path to the database directory
+    filesDir: Path to the files directory
+    schema: Path to the schema.txt file
+    query: Path to the query.txt file
+    output: Path to the output.txt file
+
+@returns:
+    Catalog: The catalog object
+
+ */
 public class Catalog {
 
     private List<Relation> relations;
@@ -33,11 +53,7 @@ public class Catalog {
 
 
     private Catalog() {
-//        this.databaseDir = databaseDir;
-//        this.relations = new ArrayList<>();
-////        Files directory is the database directory + "/files"
-//        this.filesDir = new File(databaseDir + "/files/");
-//        this.relations = parseSchema();
+
     }
 
 
@@ -55,15 +71,11 @@ public class Catalog {
 
 
 
-//    Given a files directory, there should be a list of CSV files and a schema.txt file
-//    The schema.txt file, each row is a table
-//    First column is the table name, and the rest of the columns are the column names
+    // Given a files directory, there should be a list of CSV files and a schema.txt file
+    // In the schema.txt file each row is a table
+    // First column is the table name, and the rest of the columns are the column names
 
-//    Open and parse schema.txt file:
-
-//    Create a function to parse the schema.txt file where each line is a relation/table
-//    Code:
-
+    // This function parses the query and stores it in the catalog
     public Query getParsedQuery(){
         Query queryParsed = null;
         try {
@@ -74,39 +86,14 @@ public class Catalog {
         return queryParsed;
     }
 
-    public String getInputFile() {
-        return inputFile;
-    }
-
+    // Get the output file path
     public String getOutputFile() {
         return outputFile;
     }
 
-    public List<Relation> getRelations() {
-        return relations;
-    }
 
-    public void setRelations(List<Relation> relations) {
-        this.relations = relations;
-    }
 
-    public String getDatabaseDir() {
-        return databaseDir;
-    }
-
-    public void setDatabaseDir(String databaseDir) {
-        this.databaseDir = databaseDir;
-    }
-
-    public File getFilesDir() {
-        return filesDir;
-    }
-
-    public void setFilesDir(File filesDir) {
-        this.filesDir = filesDir;
-    }
-
-//    Get the relation given the name of the relation
+    // Get the relation object given the name of the relation
     public Relation getRelation(String name){
         for (Relation relation : relations) {
             if (relation.getName().equals(name)) {
@@ -116,15 +103,10 @@ public class Catalog {
         return null;
     }
 
-
+    // Get the list of relations given a schema txt file
     public List<Relation> parseSchema(){
         List<Relation> relations = new ArrayList<>();
-//        Schema.txt file is the database directory + "schema.txt"
         String schemaFile = databaseDir + "/schema.txt";
-
-//        Print out the schema file
-        System.out.println(schemaFile);
-
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(schemaFile));
@@ -147,6 +129,7 @@ public class Catalog {
         return relations;
     }
 
+    // Get the catalog instance
     public static Catalog getInstance() {
         if (instance == null) {
             instance = new Catalog();

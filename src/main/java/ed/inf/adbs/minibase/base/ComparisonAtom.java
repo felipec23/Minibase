@@ -3,6 +3,23 @@ package ed.inf.adbs.minibase.base;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class abstracts the concept of comparison atom and should be extended for each specific
+ * comparison operator. It defines the fields all the comparison atoms need and provide their getters
+ * and setters. It also defines the evaluate method that is used to evaluate the comparison atom.
+ * It keeps track of the indexes. For example, let's say it's evaluating a tuple of the form: R[b, x] and that
+ * the current comparison atom per se is: x != 5. Then, the indexes list will be [1] and the relationsNames
+ * list will be [R]. If  there are more than one relation included in the comparison, then the indexes list
+ * and relationsNames list will have the same size and the indexes will be in the same order as the relations
+ * names. For example, let's say it's evaluating a tuple of the form: R[b, x] and S[c, y] and that
+ * the current comparison atom per se is: x != y. Then, the indexes list will be [1, 1] and the relationsNames
+ * list will be [R, S]. We also defined several types of comparison atoms. The default type is "default". But there
+ * are more possible types:
+ * "equi-join": when the same variable appears in 2 or more terms.
+ * "different atoms": when there's a comparison between 2 different atoms.
+ * "between atom": when the comparison is only inside a single atom.
+ *
+ */
 public class ComparisonAtom extends Atom {
 
     private Term term1;
@@ -34,30 +51,6 @@ public class ComparisonAtom extends Atom {
     	this.indexes = indexes;
     }
 
-    /**
-     * A method used to determine whether this comparison atom is contained
-     * in a list of terms.
-     * @param terms A list of terms that used to judge containment.
-     * @return true if contained, false if not.
-     */
-    public boolean containedIn(List<Term> terms){
-        // if both the terms in this comparison atom are constant
-        // just return true
-        if(term1 instanceof Constant && term2 instanceof  Constant){
-            return true;
-        }
-        // else find all the variables and check whether it's a subset
-        // of the given list of terms
-        List<Variable> variablesInCA = new ArrayList<>();
-        if(term1 instanceof  Variable){
-            variablesInCA.add((Variable)term1);
-        }
-        if(term2 instanceof  Variable){
-            variablesInCA.add((Variable)term2);
-        }
-        return  terms.containsAll(variablesInCA);
-    }
-
 
     public void setType(String type) {
     	this.type = type;
@@ -75,7 +68,6 @@ public class ComparisonAtom extends Atom {
     	return this.relationsNames;
     }
 
-
     public Term getTerm1() {
         return term1;
     }
@@ -89,12 +81,7 @@ public class ComparisonAtom extends Atom {
         return op.evaluate(tuple.getTuple(0), tuple.getTuple(1));
 
     }
-//    Get operator:
 
-
-    public ComparisonOperator getOp() {
-        return op;
-    }
 
     @Override
     public String toString() {

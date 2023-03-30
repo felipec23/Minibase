@@ -1,13 +1,12 @@
 package ed.inf.adbs.minibase.base;
-
-import ed.inf.adbs.minibase.parser.QueryParser;
-
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+/**
+ *  Operator to scan a file. It uses relTermsToDelete for optimization purposes. In this way, it's only scanning
+ *  the variables that will actually be used at some time in the process.
+ */
 public class ScanOperator extends Operator{
 
     private String relationName;
@@ -38,8 +37,6 @@ public class ScanOperator extends Operator{
         this.reader = (BufferedReader) setReader();
         this.indexesToIgnore = getIndexesToIgnore(query);
 
-
-        System.out.println("Here, ORIGINAL QUERY: " + query);
     }
 
 
@@ -59,22 +56,14 @@ public class ScanOperator extends Operator{
         }
     }
 
-    //    Function to get relation name:
 
-    @Override
-    public String getRelationName() {
-        return relationName;
-    }
-
-
-
-
-
-
-    //    Function to get the file path of the relation
+    /**
+     * Function to get the file path of the relation
+     * @return file path
+     */
     public String getRelationPath() {
 
-//        Get from the catalog the file path of the relation
+        // Get from the catalog the file path of the relation
         Relation r = catalog.getRelation(relationName);
 
         return r.getFilePath();
@@ -82,34 +71,32 @@ public class ScanOperator extends Operator{
     }
 
 
-
-    public String getReader() {
-        return reader.toString();
-    }
+    /**
+     * This function returns the schema of a given relation
+     * @return list of data types
+     */
 
     @Override
     public List<String> getSchemaOfRelation() {
-        //            Use the schema to get the data types of the attributes
+        // Use the schema to get the data types of the attributes
 
         Relation relation = catalog.getRelation(relationName);
         List<String> schema = relation.getSchema();
-
-        System.out.println("Original schema: " + schema);
-
 
         return schema;
 
     }
 
+    /**
+     * This function identifies the positions that should be ignored when reading the .csv files. These positions
+     * are given by another variable called relTermsToDelete, which it's part of the optimization process.
+     * @param queryOriginal
+     * @return list of indexes to not scan
+     */
     public List<Integer> getIndexesToIgnore(Query queryOriginal){
+
         // Get the terms of the original relational atom
         List<Term> terms = getOriginalTermsOfAtom(queryOriginal);
-
-        System.out.println("Original query: " + queryOriginal);
-
-        System.out.println("Original terms of relational atom: " + terms);
-
-        System.out.println("Terms to delete: " + relTermsToDelete);
 
         // Save indexes of terms equal to relTermsToDelete
         List<Integer> indexes = new ArrayList<>();
@@ -122,6 +109,11 @@ public class ScanOperator extends Operator{
         return indexes;
     }
 
+    /**
+     * This functions fetches from the original query the terms of a given atom
+     * @param originalQuery
+     * @return list of terms
+     */
 
     public List<Term> getOriginalTermsOfAtom(Query originalQuery) {
 
@@ -144,27 +136,12 @@ public class ScanOperator extends Operator{
     }
 
 
-//    @Override
-//    public List<Term> getTermsOfRelationalAtom(Query queryOriginal) {
-//
-//        // Iterate over relational atoms in the body
-//        // If the name of the relational atom is the same as the relation name
-//        // Get the terms of the relational atom
-//
-//        List<Term> terms = new ArrayList<>();
-//        for (Atom atom : queryOriginal.getBody()) {
-//            if (atom instanceof RelationalAtom) {
-//                if (((RelationalAtom) atom).getName().equals(relationName)) {
-//                    terms = ((RelationalAtom) atom).getTerms();
-//                }
-//            }
-//
-//        }
-//
-//        return terms;
-//
-//    }
-
+    /**
+     * The following function returns the simplified version of an atom, given the possible terms that can be
+     * deleted.
+     * @param queryOriginal
+     * @return list of terms of atom
+     */
     public List<Term> getNewSimpleTermsOfRelAtom(Query queryOriginal) {
         List<Term> terms = new ArrayList<>();
         for (Atom atom : queryOriginal.getBody()) {
@@ -184,7 +161,7 @@ public class ScanOperator extends Operator{
 
         }
 
-        System.out.println("Terms after deleting terms: " + terms);
+        // System.out.println("Terms after deleting terms: " + terms);
 
         return terms;
     }
@@ -194,6 +171,13 @@ public class ScanOperator extends Operator{
         return null;
     }
 
+    /**
+     * First, we open the reader and get the line. We then split by comma and iterate over the columns of the
+     * .csv file. Nevertheless, we skip those indexes that are not needed in any part of the process and that
+     * are part of the optimization step. Finally, we parse the string according to the schema, which we have
+     * defined for the specific relation we're in.
+     * @return
+     */
     @Override
     public Tuple getNextTuple() {
         String line;
@@ -201,9 +185,7 @@ public class ScanOperator extends Operator{
 
 
             line = reader.readLine();
-            System.out.println("FROM SCAN OPERATOR");
-            System.out.println("Reader: " + reader);
-            System.out.println("LINE: " + line);
+
             if (line == null) {
                 reader.close();
                 return null;
@@ -211,11 +193,6 @@ public class ScanOperator extends Operator{
 
 
             String[] values = line.split(",");
-
-
-            // Get indexes of terms to ignore
-
-            System.out.println("Indexes to ignore: " + indexesToIgnore);
 
             // Final size of the terms array
             int finalSize = values.length - indexesToIgnore.size();
@@ -231,14 +208,11 @@ public class ScanOperator extends Operator{
                     continue;
                 }
                 String type = schema.get(i);
-                System.out.println("Type: " + type);
 
                 if (type.equals("int")) {
-
                     terms[counter] = new IntegerConstant(Integer.parseInt(values[i].trim()));
                 }
                 else if (type.equals("string")) {
-
                     terms[counter] = new StringConstant(values[i].trim().replaceAll("'", ""));
                 }
 
@@ -246,10 +220,10 @@ public class ScanOperator extends Operator{
             }
 
             Tuple tuple = new Tuple(terms);
+
             // Get variables for the tuple
             tuple.setVariables(getNewSimpleTermsOfRelAtom(query));
-            System.out.println("Tuple to send from scan: " + tuple);
-            System.out.println("Tuple variables: " + tuple.getVariables());
+
             return tuple;
 
         } catch (IOException e) {
@@ -259,125 +233,11 @@ public class ScanOperator extends Operator{
     }
 
 
+    /**
+     * HasNext function to check if there is a next tuple in the relation.
+     * @return boolean indicating if there's a next line.
+      */
 
-//    @Override
-//    public Tuple getNextTuple() {
-//        String line;
-//        try {
-//
-//
-//            line = reader.readLine();
-//            System.out.println("FROM SCAN OPERATOR");
-//            System.out.println("Reader: " + reader);
-//            System.out.println("LINE: " + line);
-//            if (line == null) {
-//                reader.close();
-//                return null;
-//            }
-//
-//
-//            String[] values = line.split(",");
-//            Term[] terms = new Term[values.length];
-//
-//
-////            Print the values
-////            System.out.println("Values from CSV: ");
-////            for (int i = 0; i < values.length; i++) {
-////                System.out.println(values[i]);
-////            }
-//
-////            Parse the values to the correct data type
-//            for (int i = 0; i < values.length; i++) {
-//
-//////                Print i, say that print it
-////                System.out.println("i: " + i);
-//////                Print the data type
-////                System.out.println("Data type: " + schema.get(i));
-//////                Print terms[i]
-////                System.out.println("values[i]: " + values[i]);
-////                Get correspondant data type
-//                String type = schema.get(i);
-//
-//
-//                if (type.equals("int")) {
-//
-////                    If it's an integer, create new IntegerConstant object
-////                    values[i] = new IntegerConstant(Integer.parseInt(values[i]));
-//                    terms[i] = new IntegerConstant(Integer.parseInt(values[i].trim()));
-//                }
-//                else if (type.equals("string")) {
-//
-//
-////                    values[i] = values[i];
-////                    Remove the single quotes
-////                    values[i] = values[i].trim().replaceAll("'", "");
-//                    terms[i] = new StringConstant(values[i].trim().replaceAll("'", ""));
-//                }
-//            }
-//
-////            Print the values
-////            System.out.println("Values after parsing: ");
-////            for (int i = 0; i < terms.length; i++) {
-////                System.out.println(terms[i]);
-//////                Print the data type
-////                System.out.println(terms[i].getClass());
-////            }
-//
-////
-//            Tuple tuple = new Tuple(terms);
-//            // Get variables for the tuple
-//
-//            List<Term> relAtomTerms = getTermsOfRelationalAtom();
-//            System.out.println("Relational atom terms: " + relAtomTerms);
-//
-//            // Get the variables from the head
-//            List<String> headTerms = extractAllTerms();
-//            System.out.println("ALL terms: " + headTerms);
-//
-//            // Find the intersection of the two lists
-//            List<Term> intersection = new ArrayList<>();
-//
-//            // Array to store the new list of terms for the minimal tuple
-//            List<Term> newTupleTerms = new ArrayList<>();
-//
-//            int index = 0;
-//            for (Term t : relAtomTerms) {
-//                if (headTerms.contains(t.toString())) {
-//                    intersection.add(t);
-//
-//                    // Add the term in common to the new tuple
-//                    newTupleTerms.add(terms[index]);
-//                }
-//
-//                index++;
-//            }
-//
-//            Term[] myArray = newTupleTerms.toArray(new Term[newTupleTerms.size()]);
-//
-//            // Create new tuple with the intersection
-//            Tuple newTuple = new Tuple(myArray);
-//
-//            System.out.println("Intersection: " + intersection);
-//
-//            // Remove the terms from the tuple that are not in the intersection
-//
-//
-//
-//            newTuple.setVariables(intersection);
-//            System.out.println("Tuple to send from scan: " + tuple);
-//            System.out.println("Tuple variables: " + tuple.getVariables());
-//
-//            System.out.println("New tuple to send from scan: " + newTuple);
-//            System.out.println("New tuple variables: " + newTuple.getVariables());
-//            return newTuple;
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-    // HasNext function to check if there is a next tuple in the relation:
     @Override
     public boolean hasNext() {
         String line;
@@ -399,7 +259,6 @@ public class ScanOperator extends Operator{
 
     @Override
     public void reset() {
-
 
         try {
             this.reader = new BufferedReader(new FileReader(relationPath));
