@@ -5,10 +5,7 @@ import ed.inf.adbs.minibase.parser.QueryParser;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 // Import Catalog class created:
@@ -108,7 +105,7 @@ public class Minibase {
         root.dump();
 
         // Print
-        System.out.println("Query parsed: " + query);
+
         System.out.println("Query plan: " + root);
 
 

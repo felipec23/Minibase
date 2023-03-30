@@ -46,10 +46,7 @@ public class SelectionOperator extends Operator{
         return null;
     }
 
-    @Override
-    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
-        return null;
-    }
+
 
     @Override
     public Tuple getNextTuple() {

@@ -37,10 +37,7 @@ public class ProjectOperator extends Operator {
         return null;
     }
 
-    @Override
-    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
-        return null;
-    }
+
 
 //    @Override
 //    public List<String> getSchema() {
@@ -113,15 +110,15 @@ public class ProjectOperator extends Operator {
 
 
                 // Read variables from tuple as string:
-                List<Term> variablesTuple = tuple.getVariables();
-                System.out.println("Variables in tuple: " + variablesTuple);
+                List<String> variablesTupleString = tuple.getVariablesAsListOfStrings();
+                System.out.println("Variables in tuple: " + variablesTupleString);
 
                 // Iterate over variables in tuple:
                 Integer index = 0;
-                for (Term term : variablesTuple) {
+                for (String term : variablesTupleString) {
                     System.out.println("Term: " + term);
                     System.out.println("Variable: " + variable);
-                    if (term.equals(variable)) {
+                    if (term.equals(variable.toString())) {
                         System.out.println("Variable found in tuple");
                         projectedTuple.add(tuple.getTuple(index));
                         break;

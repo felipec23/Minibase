@@ -1,5 +1,7 @@
 package ed.inf.adbs.minibase.base;
 
+import ed.inf.adbs.minibase.parser.QueryParser;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +12,23 @@ public class QueryPlanner {
 
     private Operator root = null;
 
+    private Query query = null;
 
-    public Operator plan(Query query) {
+    private List<String> relTermsToDelete;
 
+    private Query originalQuery;
+
+
+    public Operator plan(Query originalQuery) {
+
+        this.originalQuery = originalQuery;
+        this.relTermsToDelete = getDeletableRelTerms(originalQuery);
+        this.query = getSimpleQuery(originalQuery);
+
+        System.out.println("This Original query: " + this.originalQuery);
+
+        // Print query:
+        System.out.println("Query: " + query);
 
         // Array to save all join terms:
         List<Term> processedTerms = new ArrayList<>();
@@ -22,7 +38,7 @@ public class QueryPlanner {
 
         // Array to save all head variables:
         List<String> headVariables = new ArrayList<>();
-        for (Term term : query.getHead().getVariables()) {
+        for (Term term : originalQuery.getHead().getVariables()) {
             headVariables.add(term.toString());
             if (!(term instanceof Variable)) {
                 allHeadTermsAreVariables = false;
@@ -33,7 +49,7 @@ public class QueryPlanner {
         List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
 
         // Get all terms from the query:
-        List<String> allTermsFromBody = getRelationalVariablesFromQuery(query);
+        List<String> allTermsFromBody = getRelationalVariablesFromQuery(originalQuery);
 
 
         // Get first atom
@@ -46,7 +62,7 @@ public class QueryPlanner {
         processedTerms.addAll(relationalAtom1.getTerms());
 
         // Generate scan operator for the first atom:
-        ScanOperator scanOp1 = new ScanOperator(relAtomName1, query);
+        ScanOperator scanOp1 = new ScanOperator(relAtomName1, relTermsToDelete);
 
         List<ComparisonAtom> allComparisonAtoms =  analyzeConditions(query);
 
@@ -86,7 +102,7 @@ public class QueryPlanner {
             // Add the terms to the processed terms:
             processedTerms.addAll(terms2);
             // Generate scan operator for the second atom:
-            ScanOperator scanOp2 = new ScanOperator(relAtomName2, query);
+            ScanOperator scanOp2 = new ScanOperator(relAtomName2, relTermsToDelete);
             // Find if there's need for a selection operator
             List<ComparisonAtom> comparisonAtomsBetweenAtom2 = getComparisonAtomsBetweenAtom(relAtomName2, allComparisonAtoms);
             // If there are comparison atoms between the second atom, create selection operator:
@@ -150,6 +166,115 @@ public class QueryPlanner {
 
         // Return the root:
         return root;
+
+    }
+
+
+    public Query getSimpleQuery(Query originalQuery){
+
+
+        String queryString = originalQuery.toString();
+
+        // Iterate over terms that can be removed:
+        for (String term : this.relTermsToDelete) {
+            // Remove the term from the query:
+            queryString = queryString.replace(term + ", ", "");
+            queryString = queryString.replace(", " + term, "");
+
+        }
+
+        Query query = QueryParser.parse(queryString);
+
+        return query;
+
+    }
+
+    public List<String> getDeletableRelTerms(Query query) {
+
+
+        // From the head:
+        List<String> queryTerms = new ArrayList<>();
+        SumAggregate sumAgg = query.getHead().getSumAggregate();
+
+        if (sumAgg != null) {
+            // Create list of product terms head
+            List<Term> productTerms = sumAgg.getProductTerms();
+
+            for (Term term : productTerms) {
+                queryTerms.add(term.toString());
+            }
+        }
+
+        // Add all the variables in the head to the list
+        for (Variable variable : query.getHead().getVariables()) {
+            queryTerms.add(variable.toString());
+        }
+
+        // From the body:
+
+        // Create hashmap to store the frequency of each term
+        HashMap<String, Integer> termFrequency = new HashMap<>();
+
+        List<Atom> body = query.getBody();
+        for (Atom atom : body) {
+            if (atom instanceof ComparisonAtom) {
+                ComparisonAtom comparisonAtom = (ComparisonAtom) atom;
+                Term term1 = comparisonAtom.getTerm1();
+                queryTerms.add(term1.toString());
+
+            } else if (atom instanceof RelationalAtom) {
+                RelationalAtom relationalAtom = (RelationalAtom) atom;
+                List<Term> terms = relationalAtom.getTerms();
+                for (Term term : terms) {
+
+                    // If term is IntegerConstant, add it to the list
+                    if (term instanceof Constant) {
+                        queryTerms.add(term.toString());
+                    }
+
+                    // If term is Variable, add it to the list
+                    else if (term instanceof Variable) {
+                        // Add to hashmap if it is not already present
+                        if (!termFrequency.containsKey(term.toString())) {
+                            termFrequency.put(term.toString(), 1);
+                        }
+                        // If it is already present, increment the frequency
+                        else {
+                            termFrequency.put(term.toString(), termFrequency.get(term.toString()) + 1);
+
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add the terms with frequency greater than 1 to the list
+        // If a term appears twice or more, it means that is a possible join condition
+        List<String> termsDeletable = new ArrayList<>();
+        for (String term : termFrequency.keySet()) {
+            if (termFrequency.get(term) > 1) {
+                queryTerms.add(term);
+            }
+            else {
+                System.out.println("Term with frequency of one: " + term + " Frequency: " + termFrequency.get(term));
+                if (!queryTerms.contains(term)) {
+                    termsDeletable.add(term);
+                }
+            }
+        }
+
+        // Delete duplicates
+        List<String> queryTermsNoDuplicates = new ArrayList<>();
+        for (String term : queryTerms) {
+            if (!queryTermsNoDuplicates.contains(term)) {
+                queryTermsNoDuplicates.add(term);
+            }
+        }
+
+        // Print possible terms to be deleted:
+        System.out.println("Terms to be deleted: " + termsDeletable);
+
+        return termsDeletable;
 
     }
 
@@ -224,11 +349,12 @@ public class QueryPlanner {
 
     }
 
-    public static List<RelationalAtom> getRelationalAtomsFromQuery(Query query) {
+    public List<RelationalAtom> getRelationalAtomsFromQuery(Query query) {
         List<RelationalAtom> relationalAtoms = new ArrayList<>();
         for (Atom atom : query.getBody()) {
             if (atom instanceof RelationalAtom) {
                 RelationalAtom relationalAtom = (RelationalAtom) atom;
+
                 relationalAtoms.add(relationalAtom);
             }
         }
@@ -236,7 +362,7 @@ public class QueryPlanner {
     }
 
 
-    public static List<ComparisonAtom>  analyzeConditions(Query query){
+    public List<ComparisonAtom>  analyzeConditions(Query query){
         // Get relational atoms from query:
         List<RelationalAtom> relationalAtoms = getRelationalAtomsFromQuery(query);
 
@@ -361,7 +487,7 @@ public class QueryPlanner {
         return index;
     }
 
-    public static Map<String, Map<String, Integer>> createMap(List<RelationalAtom> relationalAtoms) {
+    public Map<String, Map<String, Integer>> createMap(List<RelationalAtom> relationalAtoms) {
         Map<String, Map<String, Integer>> myMap = new HashMap<>();
 
         // create a new inner map
@@ -372,6 +498,13 @@ public class QueryPlanner {
             // Iterate over each term of the relational atom:
             for (Term term : relationalAtom.getTerms()) {
                 if (term instanceof Variable) {
+
+                    // If term is in relTermsToDelete, then skip it:
+                    if (relTermsToDelete.contains(term.toString())) {
+                        System.out.println("Skipping: " + term + " .It is in relTermsToDelete");
+                        continue;
+                    }
+
                     // Get the index of the term in the relational atom:
                     Integer index = getTermIndex(term, relationalAtom);
                     // System.out.println("Index of " + term + " in " + relationalAtom + ": " + index);
@@ -425,7 +558,7 @@ public class QueryPlanner {
             // Create index for keeping track of the position of the constant:
             int index = 0;
             for (Term term : relationalAtom.getTerms()) {
-                if (term instanceof Constant) {
+                if (term instanceof Constant ) {
                     // System.out.println("Implicit condition detected: " + relationalAtom + " = " + term);
 
                     // Save as a comparison atom:

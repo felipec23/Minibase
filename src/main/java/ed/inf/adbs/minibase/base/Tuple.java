@@ -74,6 +74,14 @@ public class Tuple {
         return variables;
     }
 
+    public List<String> getVariablesAsListOfStrings() {
+        List<String> variablesAsStrings = new ArrayList<>();
+        for (Term variable : variables) {
+            variablesAsStrings.add(variable.toString());
+        }
+        return variablesAsStrings;
+    }
+
     // Function to get all variables names in a tuple:
     public List<String> getVariablesNames() {
         List<String> variablesNames = new ArrayList<>();

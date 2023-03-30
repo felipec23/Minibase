@@ -121,10 +121,6 @@ public class JoinOperator extends Operator {
         return null;
     }
 
-    @Override
-    public List<Term> getTermsOfRelationalAtom(String relationAtomName) {
-        return null;
-    }
 
     @Override
     public Tuple getNextTuple(){
@@ -197,6 +193,12 @@ public class JoinOperator extends Operator {
 //        Start counter:
         int i = 0;
 
+        // If newJoinConditions is empty, return true:
+        if (newJoinConditions.isEmpty()) {
+            System.out.println("New join conditions are empty");
+            return true;
+        }
+
         // Iterate over the new join conditions:
         for (ComparisonAtom comparisonAtom : newJoinConditions) {
 
@@ -208,7 +210,8 @@ public class JoinOperator extends Operator {
 
             // Get the position of the left term:
             //int leftTermPosition = comparisonAtom.getIndexes().get(0);
-            List<Term> variables = tupleLeft.getVariables();
+            //List<Term> variables = tupleLeft.getVariables();
+            List<String> variables = tupleLeft.getVariablesAsListOfStrings();
 
             System.out.println("Variable schema for the joined/left tuple: " + variables);
 
@@ -216,7 +219,8 @@ public class JoinOperator extends Operator {
             //int leftTermPosition = variables.indexOf(comparisonAtom.getTerm1());
 
             // We do the search from the end of the list, in case the variable is repeated in the tuple:
-            int leftTermPosition = variables.lastIndexOf(comparisonAtom.getTerm1());
+            System.out.println("Term 1: " + comparisonAtom.getTerm1());
+            int leftTermPosition = variables.lastIndexOf(comparisonAtom.getTerm1().toString());
 
 
             // Get the position of the right term:
@@ -232,12 +236,14 @@ public class JoinOperator extends Operator {
 
             // Evaluate comparison atom, passing a tuple:
             boolean result = comparisonAtom.evaluate(tupleToSend);
-            System.out.println("Result: " + result);
+            System.out.println("Result of comparing: " + result);
 
             results.add(result);
             i += 1;
 
         }
+
+        System.out.println("Results list: " + results);
 
         if (results.contains(false)) {
             System.out.println("False found in results list");

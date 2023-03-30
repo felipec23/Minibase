@@ -1,10 +1,12 @@
 package ed.inf.adbs.minibase.base;
 import ed.inf.adbs.minibase.base.Relation;
+import ed.inf.adbs.minibase.parser.QueryParser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -25,6 +27,7 @@ public class Catalog {
 
     private String outputFile;
 
+    private Query query;
 
 
 
@@ -46,6 +49,8 @@ public class Catalog {
         // Files directory is the database directory + "/files"
         this.filesDir = new File(databaseDir + "/files/");
         this.relations = parseSchema();
+        this.query = getParsedQuery();
+
     }
 
 
@@ -58,6 +63,16 @@ public class Catalog {
 
 //    Create a function to parse the schema.txt file where each line is a relation/table
 //    Code:
+
+    public Query getParsedQuery(){
+        Query queryParsed = null;
+        try {
+            queryParsed = QueryParser.parse(Paths.get(inputFile));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return queryParsed;
+    }
 
     public String getInputFile() {
         return inputFile;

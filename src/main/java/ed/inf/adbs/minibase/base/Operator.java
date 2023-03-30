@@ -12,7 +12,6 @@ public abstract class Operator {
 
     public abstract List<Term> getTermsOfRelationalAtom();
 
-    public abstract List<Term> getTermsOfRelationalAtom(String relationAtomName);
 
     public Tuple getNextTuple() {
         return null;
