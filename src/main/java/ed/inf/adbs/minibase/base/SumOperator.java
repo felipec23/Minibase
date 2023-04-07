@@ -191,6 +191,7 @@ public class SumOperator extends Operator {
                 }
             }
 
+            writer.newLine();
             writer.flush();
             writer.close();
             it.remove(); // avoids a ConcurrentModificationException

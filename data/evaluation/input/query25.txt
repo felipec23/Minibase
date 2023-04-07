@@ -1,1 +1,0 @@
-Q(SUM(x * u)) :- R(x, 9, z), S(x, 'pistols', u)

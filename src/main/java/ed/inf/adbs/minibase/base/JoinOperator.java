@@ -3,7 +3,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+/**
+ * Join operator is used to join two tuples. It takes two operators as input and a list of comparison.
+ */
 public class JoinOperator extends Operator {
 
     private Operator leftChild;

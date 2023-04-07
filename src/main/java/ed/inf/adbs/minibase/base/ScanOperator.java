@@ -203,7 +203,6 @@ public class ScanOperator extends Operator{
             int counter = 0;
             for (int i = 0; i < values.length; i++) {
 
-                System.out.println("iaca: " + i);
                 if (indexesToIgnore.contains(i)) {
                     continue;
                 }

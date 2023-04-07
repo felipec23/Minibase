@@ -557,7 +557,6 @@ public class QueryPlanner {
             }
         }
 
-        System.out.println("Map: " + myMap);
         return myMap;
     }
 

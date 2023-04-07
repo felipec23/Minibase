@@ -77,7 +77,6 @@ public class ComparisonAtom extends Atom {
     }
 
     public boolean evaluate(Tuple tuple) {
-//        return op.evaluate(term1.evaluate(tuple), term2.evaluate(tuple));
         return op.evaluate(tuple.getTuple(0), tuple.getTuple(1));
 
     }
