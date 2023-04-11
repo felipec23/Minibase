@@ -7,7 +7,7 @@ In the following lines I will explain the implementation
 steps for tasks 2 and 3. You may still find detailed descriptions on
 each of the functions found in the files.
 
-You can jump to the root folder using this [link:](https://github.com/felipec23/Minibase/tree/4714c856592ceed0b01e956fa1b2a74c229979f5/src/main/java/ed/inf/adbs/minibase)
+You can jump to the root folder using this [link](https://github.com/felipec23/Minibase/tree/4714c856592ceed0b01e956fa1b2a74c229979f5/src/main/java/ed/inf/adbs/minibase).
 
 ## Extraction of conditions from body
 Besides the normal atom comparisons the goal was to extract the
